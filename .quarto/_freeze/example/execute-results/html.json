@@ -1,0 +1,17 @@
+{
+  "hash": "f263e81da689d8824126b7942c08e897",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"Custom Callouts with Chart\"\nformat:\n  html:\n    number-sections: true\n    number-depth: 3  \nexecute:\n  echo: true\n  warning: false\nextensions:\n  - quarto-ext/fontawesome\n---\n\n# Custom Callouts Test with Chart\n\n::: callout-note\n## Note\nThis is a note callout. It uses a calm blue tone to highlight general information.\n:::\n\n::: callout-tip\n## Tip\nThis is a tip callout. It provides helpful suggestions or best practices.\n:::\n\n::: callout-caution\n## Caution\nThis is a caution callout. It warns the reader to be careful but not alarmed.\n:::\n\n::: callout-warning\n## Warning\nThis is a warning callout. It's a bit more serious and should draw attention.\n:::\n\n::: callout-important\n## Important\nThis is an important callout. It uses a strong red tone to highlight crucial content.\n:::\n\n# Example Chart\n\nBelow is a simple bar chart rendered with `ggplot2`:\n\n\n::: {.cell}\n\n```{.r .cell-code}\nlibrary(ggplot2)\n\ndata <- data.frame(\n  category = c(\"A\", \"B\", \"C\", \"D\"),\n  value = c(4, 7, 1, 9)\n)\n\nggplot(data, aes(x = category, y = value, fill = category)) +\n  geom_bar(stat = \"identity\") +\n  theme_minimal() +\n  labs(title = \"Sample Bar Chart\", x = \"Category\", y = \"Value\") +\n  theme(legend.position = \"none\")\n```\n\n::: {.cell-output-display}\n![](example_files/figure-html/unnamed-chunk-1-1.png){width=672}\n:::\n:::\n\n\n",
+    "supporting": [
+      "example_files"
+    ],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

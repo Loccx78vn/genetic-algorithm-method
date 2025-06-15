@@ -1,0 +1,24 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "Cao Xuân Lộc"
+  navbar:
+    left:
+      - href: index.qmd
+        text: "<i class='fa-solid fa-house'></i> Home"
+      - href: GA.qmd
+        text: "<i class='fa-solid fa-dna'></i> Genetic Algorithm"
+  page-footer:
+    right: "<i class='fa-solid fa-book'></i> Built with [Quarto](https://quarto.org/)"
+    left: "© Copyright 2025, [Loc cao](https://github.com/Loccx78vn) <i class='fa-solid fa-heart'></i>"
+
+format:
+  html:
+    theme: theme.scss 
+    toc: true
+    include-in-header: 
+      - toc-filter.html
+      - text: |
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">

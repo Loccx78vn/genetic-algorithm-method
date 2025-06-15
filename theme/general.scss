@@ -1,0 +1,40 @@
+/*-- scss:rules --*/
+// General styles
+body {
+  line-height: 1.6;
+}
+
+// Selection highlight
+::selection {
+  background: $selection-bg;
+  color: $navy-black;
+}
+
+// Links
+a {
+  text-decoration: none;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: $gold;
+    text-decoration: underline;
+  }
+}
+
+// Headings - styling for built-in numbering
+h1, h2, h3, h4, h5, h6 {
+  color: $navy-dark;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  
+  .header-section-number {
+    color: $navy-medium;
+    font-weight: 600;
+    margin-right: 0.5rem;
+    transition: color 0.2s ease;
+  }
+  
+  &:hover .header-section-number {
+    color: $gold;
+  }
+}

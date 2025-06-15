@@ -1,0 +1,284 @@
+// Print-specific styles
+@media print {
+  .navbar, .sidebar {
+    display: none !important;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+    color: $navy-black !important;
+  }
+  
+    pre, blockquote, table {
+    page-break-inside: avoid;
+  }
+  
+  a {
+    color: $navy-black !important;
+    text-decoration: none !important;
+  }
+  
+  @page {
+    margin: 2cm;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 991.98px) {
+  .sidebar {
+    border-right: none;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+  }
+}
+
+
+// Improved figure captions
+figure {
+  margin: 2rem 0;
+  
+  figcaption {
+    margin-top: 0.75rem;
+    color: $navy-dark;
+    font-size: 0.9rem;
+    font-style: italic;
+    text-align: center;
+    
+    &.figure-caption::before {
+      content: "Figure: ";
+      font-weight: bold;
+      color: $navy-medium;
+    }
+  }
+}
+
+// Add nice styling to definition lists
+dl {
+  margin: 1.5rem 0;
+  
+  dt {
+    font-weight: 600;
+    color: $navy-dark;
+    margin-top: 1rem;
+    
+    &::after {
+      content: "";
+      display: block;
+      width: 2rem;
+      height: 2px;
+      background-color: $gold;
+      margin: 0.3rem 0 0.5rem;
+    }
+  }
+  
+  dd {
+    margin-left: 1rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
+// Improved styling for tabs
+.panel-tabset {
+  margin: 2rem 0;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  overflow: hidden;
+  
+  .nav-tabs {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid $gold;
+    
+    .nav-item {
+      margin-bottom: -2px;
+      
+      .nav-link {
+        padding: 0.75rem 1.25rem;
+        color: $navy-medium;
+        border: none;
+        border-radius: 0;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          color: $navy-dark;
+          background-color: rgba(255, 195, 0, 0.1);
+        }
+        
+        &.active {
+          color: $navy-dark;
+          font-weight: 500;
+          background-color: white;
+          border-top: 2px solid $gold;
+          border-left: 1px solid #e9ecef;
+          border-right: 1px solid #e9ecef;
+          border-bottom: 2px solid white;
+          margin-bottom: -2px;
+        }
+      }
+    }
+  }
+  
+  .tab-content {
+    padding: 1.5rem;
+    
+    > :first-child {
+      margin-top: 0;
+    }
+    
+    > :last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+// Improved styling for pagination
+.quarto-listing-category {
+  .listing-category {
+    color: $navy-medium;
+    background-color: rgba(0, 53, 102, 0.05);
+    border: 1px solid rgba(0, 53, 102, 0.1);
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      color: white;
+      background-color: $navy-medium;
+      text-decoration: none;
+    }
+  }
+}
+
+.pagination {
+  .page-item {
+    .page-link {
+      color: $navy-medium;
+      border: 1px solid #e9ecef;
+      
+      &:hover {
+        background-color: rgba(255, 195, 0, 0.1);
+        border-color: $gold;
+      }
+    }
+    
+    &.active .page-link {
+      background-color: $navy-medium;
+      border-color: $navy-medium;
+      color: white;
+    }
+    
+    &.disabled .page-link {
+      color: #6c757d;
+    }
+  }
+}
+
+// Custom styling for section anchors
+.anchor-section {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  color: $gold;
+  margin-left: 0.5rem;
+  
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+:hover > .anchor-section {
+  opacity: 1;
+}
+
+// Style quarto title block
+.quarto-title {
+  margin-bottom: 2.5rem;
+  
+  .quarto-title-block {
+    .quarto-title-banner {
+      background-color: $navy-dark;
+      color: white;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      border-radius: 6px;
+      position: relative;
+      overflow: hidden;
+      
+      &::before {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(90deg, $gold, $gold-light);
+      }
+      
+      .quarto-title {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+      }
+      
+      .quarto-categories {
+        margin-top: 1rem;
+        
+        .quarto-category {
+          background-color: rgba(255, 255, 255, 0.2);
+          color: white;
+          border-radius: 4px;
+          padding: 0.3rem 0.6rem;
+          font-size: 0.8rem;
+          margin-right: 0.5rem;
+          transition: background-color 0.2s ease;
+          
+          &:hover {
+            background-color: $gold;
+            color: $navy-dark;
+            text-decoration: none;
+          }
+        }
+      }
+    }
+    
+    .quarto-title-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+      
+      .quarto-title-meta-heading {
+        font-weight: 600;
+        color: $navy-dark;
+        margin-bottom: 0.25rem;
+      }
+      
+      .quarto-title-meta-contents {
+        color: $navy-black;
+      }
+    }
+  }
+}
+
+// Style for search interface
+.quarto-search-results {
+  background-color: white;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  
+  .search-result-title {
+    color: $navy-dark;
+    font-weight: 600;
+    
+    &:hover {
+      color: $gold;
+    }
+  }
+  
+  .search-result-highlight {
+    background-color: rgba(255, 214, 10, 0.3);
+    padding: 0.1rem 0;
+  }
+}

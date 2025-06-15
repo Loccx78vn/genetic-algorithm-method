@@ -1,0 +1,120 @@
+// Clipboard icon before TOC section headers
+.sidebar h2::before {
+  content: "📋";
+  margin-right: 0.5rem;
+  font-size: 1.2rem;
+  display: inline-block;
+}
+
+.sidebar {
+  nav[role="doc-toc"] {
+    background-color: $navy-black;
+    color: white;
+    padding: 1rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+    input.toc-search {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      border: 1px solid $navy-medium;
+      border-radius: 4px;
+      background-color: $navy-dark;
+      color: white;
+      outline: none;
+      transition: border-color 0.3s, box-shadow 0.3s;
+
+      &::placeholder {
+        color: lighten($navy-black, 40%);
+      }
+
+      &:focus {
+        border-color: $gold;
+        box-shadow: 0 0 6px $gold-light;
+      }
+    }
+
+  ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+
+      li {
+        margin: 0;
+        padding: 0;
+
+        a {
+          position: relative;
+          display: flex;
+          align-items: left;
+          color: white;
+          text-decoration: none;
+          padding: 0.25rem 0 0.25rem 2.8rem; // more left padding for bigger arrow + spacing
+          transition: color 0.3s, background-color 0.3s;
+
+          &:hover {
+            color: $gold-light;
+            background-color: rgba($gold, 0.15);
+          }
+
+          &.active {
+            color: $gold;
+            font-weight: 700;
+            background-color: rgba($gold, 0.3);
+
+            &::before {
+              content: "▾";
+              position: absolute;
+              left: 0.6rem;       // shifted a bit right for bigger arrow
+              font-size: 1.3rem;  // bigger arrow font size
+              color: $gold;
+              transition: transform 0.3s;
+              transform-origin: center;
+            }
+          }
+
+          &::before {
+            content: "▸";
+            position: absolute;
+            left: 0.6rem;        // match active arrow left position
+            font-size: 1.3rem;   // bigger arrow font size
+            color: $gold-light;
+            cursor: pointer;
+            transition: transform 0.3s, color 0.3s;
+            margin-right: 0.4rem; // spacing between arrow and text
+          }
+
+          &.active::before {
+            transform: rotate(90deg);
+            color: $gold;
+          }
+        }
+      }
+    }
+  }
+}
+
+
+/* Search box styling */
+#toc-search {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid $navy-medium;
+  border-radius: 4px;
+  background-color: $navy-dark;
+  color: white;
+  outline: none;
+  font-size: 0.9rem;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  &:focus {
+    border-color: $gold-light;
+    box-shadow: 0 0 0 2px rgba($gold-light, 0.3);
+  }
+}

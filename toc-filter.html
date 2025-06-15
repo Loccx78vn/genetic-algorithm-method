@@ -1,0 +1,51 @@
+<!-- toc-filter.html -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const sidebar = document.querySelector('.sidebar nav[role="doc-toc"]');
+    if (!sidebar) return;
+
+    // Create and insert search input
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.id = 'toc-search';
+    input.placeholder = 'Search...';
+    input.classList.add('toc-search'); // for styling
+    sidebar.prepend(input);
+
+    // Select all TOC links and list items, all nested levels
+    const allLinks = sidebar.querySelectorAll('ul li a');
+    const allItems = sidebar.querySelectorAll('ul li');
+
+    input.addEventListener('input', function () {
+      const query = this.value.trim().toLowerCase();
+
+      // Hide all items initially
+      allItems.forEach(item => {
+        item.dataset.searchHidden = 'true';
+      });
+
+      // Show matching items and all their ancestor <li>s recursively
+      allLinks.forEach(link => {
+        const text = link.textContent.toLowerCase();
+        if (text.includes(query)) {
+          let current = link.closest('li');
+          while (current && current.tagName === 'LI') {
+            current.dataset.searchHidden = 'false';
+            // Move up: parent <li> if nested, else null
+            current = current.parentElement.closest('li');
+          }
+        }
+      });
+
+      // Show or hide items based on dataset flag
+      allItems.forEach(item => {
+        // If search is empty, show all items
+        if (query === '') {
+          item.style.display = '';
+        } else {
+          item.style.display = (item.dataset.searchHidden === 'true') ? 'none' : '';
+        }
+      });
+    });
+  });
+</script>

@@ -1,0 +1,51 @@
+
+// Code blocks
+pre {
+  border-radius: 6px;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  padding: 1rem;
+  margin: 1.5rem 0;
+  position: relative;
+  
+  &:hover {
+    border-color: $gold;
+  }
+  
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, $navy-medium, $gold);
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+  }
+  
+  code {
+    color: $navy-dark;
+    font-size: 0.9rem;
+  }
+}
+
+// Inline code
+code:not(pre code) {
+  background-color: rgba(0, 53, 102, 0.08);
+  color: $navy-medium;
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+// Syntax highlighting improvements
+.sourceCode {
+  .kw { color: #8959a8; } // Keywords
+  .st { color: #718c00; } // Strings
+  .dv { color: #f5871f; } // Decimal values
+  .cf { color: #4271ae; } // Control flow
+  .op { color: #3e999f; } // Operators
+  .co { color: #8e908c; font-style: italic; } // Comments
+}
+

@@ -1,0 +1,786 @@
+/*-- scss:defaults --*/
+// Custom color variables based on your palette
+$navy-black: #000814;
+$navy-dark: #001D3D;
+$navy-medium: #003566;
+$gold: #FFC300;
+$gold-light: #FFD60A;
+
+$body-bg: white;
+$body-color: $navy-black;
+$link-color: $navy-medium;
+$code-color: $navy-medium;
+$selection-bg: rgba(255, 195, 0, 0.4);
+
+// Fonts
+$font-family-sans-serif: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+$font-family-monospace: 'JetBrains Mono', 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+$headings-font-weight: 600;
+
+/*-- scss:rules --*/
+// General styles
+body {
+  line-height: 1.6;
+}
+
+// Selection highlight
+::selection {
+  background: $selection-bg;
+  color: $navy-black;
+}
+
+// Links
+a {
+  text-decoration: none;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: $gold;
+    text-decoration: underline;
+  }
+}
+
+// Headings - styling for built-in numbering
+h1, h2, h3, h4, h5, h6 {
+  color: $navy-dark;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  
+  .header-section-number {
+    color: $navy-medium;
+    font-weight: 600;
+    margin-right: 0.5rem;
+    transition: color 0.2s ease;
+  }
+  
+  &:hover .header-section-number {
+    color: $gold;
+  }
+}
+
+// Navbar styling
+.navbar {
+  background-color: $navy-dark;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border-bottom: 3px solid $gold;
+  
+  .navbar-title {
+    color: white;
+    font-weight: 600;
+    
+    &:hover {
+      color: $gold-light;
+    }
+  }
+  
+  .navbar-brand-logo {
+    max-height: 40px;
+  }
+  
+  .nav-link {
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0 0.25rem;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    
+    &:hover, &:focus {
+      color: $gold-light;
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    &.active {
+      color: $navy-dark;
+      background-color: $gold;
+      font-weight: 500;
+      
+      &:hover {
+        color: $navy-dark;
+        background-color: $gold-light;
+      }
+    }
+  }
+  
+  .navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.5);
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
+// Clipboard icon before TOC section headers
+.sidebar h2::before {
+  content: "📋";
+  margin-right: 0.5rem;
+  font-size: 1.2rem;
+  display: inline-block;
+}
+
+.sidebar {
+  nav[role="doc-toc"] {
+    background-color: $navy-black;
+    color: white;
+    padding: 1rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+    input.toc-search {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      border: 1px solid $navy-medium;
+      border-radius: 4px;
+      background-color: $navy-dark;
+      color: white;
+      outline: none;
+      transition: border-color 0.3s, box-shadow 0.3s;
+
+      &::placeholder {
+        color: lighten($navy-black, 40%);
+      }
+
+      &:focus {
+        border-color: $gold;
+        box-shadow: 0 0 6px $gold-light;
+      }
+    }
+
+  ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+
+      li {
+        margin: 0;
+        padding: 0;
+
+        a {
+          position: relative;
+          display: flex;
+          align-items: left;
+          color: white;
+          text-decoration: none;
+          padding: 0.25rem 0 0.25rem 2.8rem; // more left padding for bigger arrow + spacing
+          transition: color 0.3s, background-color 0.3s;
+
+          &:hover {
+            color: $gold-light;
+            background-color: rgba($gold, 0.15);
+          }
+
+          &.active {
+            color: $gold;
+            font-weight: 700;
+            background-color: rgba($gold, 0.3);
+
+            &::before {
+              content: "▾";
+              position: absolute;
+              left: 0.6rem;       // shifted a bit right for bigger arrow
+              font-size: 1.3rem;  // bigger arrow font size
+              color: $gold;
+              transition: transform 0.3s;
+              transform-origin: center;
+            }
+          }
+
+          &::before {
+            content: "▸";
+            position: absolute;
+            left: 0.6rem;        // match active arrow left position
+            font-size: 1.3rem;   // bigger arrow font size
+            color: $gold-light;
+            cursor: pointer;
+            transition: transform 0.3s, color 0.3s;
+            margin-right: 0.4rem; // spacing between arrow and text
+          }
+
+          &.active::before {
+            transform: rotate(90deg);
+            color: $gold;
+          }
+        }
+      }
+    }
+  }
+}
+
+
+/* Search box styling */
+#toc-search {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid $navy-medium;
+  border-radius: 4px;
+  background-color: $navy-dark;
+  color: white;
+  outline: none;
+  font-size: 0.9rem;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  &:focus {
+    border-color: $gold-light;
+    box-shadow: 0 0 0 2px rgba($gold-light, 0.3);
+  }
+}
+
+// Code blocks
+pre {
+  border-radius: 6px;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  padding: 1rem;
+  margin: 1.5rem 0;
+  position: relative;
+  
+  &:hover {
+    border-color: $gold;
+  }
+  
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, $navy-medium, $gold);
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+  }
+  
+  code {
+    color: $navy-dark;
+    font-size: 0.9rem;
+  }
+}
+
+// Inline code
+code:not(pre code) {
+  background-color: rgba(0, 53, 102, 0.08);
+  color: $navy-medium;
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+// Syntax highlighting improvements
+.sourceCode {
+  .kw { color: #8959a8; } // Keywords
+  .st { color: #718c00; } // Strings
+  .dv { color: #f5871f; } // Decimal values
+  .cf { color: #4271ae; } // Control flow
+  .op { color: #3e999f; } // Operators
+  .co { color: #8e908c; font-style: italic; } // Comments
+}
+
+// Footnotes
+.footnote-ref {
+  color: $navy-medium;
+  font-weight: 500;
+  text-decoration: none;
+  vertical-align: super;
+  font-size: 0.75em;
+  padding: 0 0.2rem;
+  
+  &:hover {
+    color: $gold;
+  }
+}
+
+.footnotes {
+  border-top: 2px solid $navy-medium;
+  margin-top: 3rem;
+  padding-top: 1rem;
+  
+  &::before {
+    content: "Footnotes";
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: $navy-dark;
+    margin-bottom: 1rem;
+  }
+  
+  ol {
+    padding-left: 1.5rem;
+    
+    li {
+      color: $navy-black;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      
+      p {
+        display: inline;
+      }
+    }
+  }
+  
+  .footnote-back {
+    margin-left: 0.5rem;
+    color: $navy-medium;
+    
+    &:hover {
+      color: $gold;
+    }
+  }
+}
+
+// Tables
+table {
+  width: 100%;
+  margin: 2rem 0;
+  border-collapse: collapse;
+  
+  thead {
+    background-color: $navy-dark;
+    color: white;
+    
+    th {
+      padding: 0.75rem;
+      font-weight: 500;
+      text-align: left;
+      border-bottom: 3px solid $gold;
+    }
+  }
+  
+  tbody {
+    tr {
+      &:nth-child(even) {
+        background-color: #f8f9fa;
+      }
+      
+      &:hover {
+        background-color: rgba(255, 195, 0, 0.1);
+      }
+    }
+    
+    td {
+      padding: 0.75rem;
+      border-bottom: 1px solid #e9ecef;
+    }
+  }
+}
+
+// Blockquotes
+blockquote {
+  border-left: 4px solid $gold;
+  background-color: rgba(255, 195, 0, 0.1);
+  padding: 1rem 1.5rem;
+  margin: 1.5rem 0;
+  font-style: italic;
+  color: $navy-dark;
+  
+  p:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// Panels/Callouts - with improved colors
+div.callout {
+  margin: 1.5rem 0;
+  padding: 1.25rem;
+  border-radius: 6px;
+  border-left: 5px solid;
+  
+  &.callout-note {
+    background-color: rgba(0, 53, 102, 0.05);
+    border-left-color: $navy-medium;
+    
+    .callout-header {
+      color: $navy-medium;
+    }
+  }
+  
+  &.callout-tip {
+    background-color: rgba(255, 195, 0, 0.07);
+    border-left-color: $gold;
+    
+    .callout-header {
+      color: darken($gold, 25%);
+    }
+  }
+  
+  &.callout-warning {
+    background-color: rgba(255, 214, 10, 0.1);
+    border-left-color: $gold-light;
+    
+    .callout-header {
+      color: darken($gold-light, 30%);
+    }
+  }
+  
+  &.callout-important, &.callout-caution {
+    background-color: rgba(0, 29, 61, 0.05);
+    border-left-color: $navy-dark;
+    
+    .callout-header {
+      color: $navy-dark;
+    }
+  }
+  
+  .callout-header {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  
+  .callout-body > :last-child {
+    margin-bottom: 0;
+  }
+}
+
+// Print-specific styles
+@media print {
+  .navbar, .sidebar {
+    display: none !important;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+    color: $navy-black !important;
+  }
+  
+    pre, blockquote, table {
+    page-break-inside: avoid;
+  }
+  
+  a {
+    color: $navy-black !important;
+    text-decoration: none !important;
+  }
+  
+  @page {
+    margin: 2cm;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 991.98px) {
+  .sidebar {
+    border-right: none;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+  }
+}
+
+// Improved table of contents in document
+#TOC {
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  padding: 1.5rem;
+  border: 1px solid #e9ecef;
+  margin-bottom: 2rem;
+  
+  &::before {
+    content: "Table of Contents";
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: $navy-dark;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid $gold;
+  }
+  
+  .toc-actions {
+    margin-top: -2.8rem;
+    
+    .btn {
+      color: $navy-medium;
+      background-color: transparent;
+      border: 1px solid $navy-medium;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.85rem;
+      
+      &:hover {
+        color: white;
+        background-color: $navy-medium;
+      }
+    }
+  }
+  
+  ul {
+    padding-left: 1.25rem;
+    
+    li {
+      margin-bottom: 0.5rem;
+      
+      a {
+        color: $navy-medium;
+        
+        &:hover {
+          color: $gold;
+          text-decoration: none;
+        }
+        
+        .quarto-nav-number {
+          color: $navy-medium;
+          font-weight: 500;
+          margin-right: 0.3rem;
+          transition: color 0.2s ease;
+        }
+        
+        &:hover .quarto-nav-number {
+          color: $gold;
+        }
+      }
+    }
+  }
+}
+
+// Improved figure captions
+figure {
+  margin: 2rem 0;
+  
+  figcaption {
+    margin-top: 0.75rem;
+    color: $navy-dark;
+    font-size: 0.9rem;
+    font-style: italic;
+    text-align: center;
+    
+    &.figure-caption::before {
+      content: "Figure: ";
+      font-weight: bold;
+      color: $navy-medium;
+    }
+  }
+}
+
+// Add nice styling to definition lists
+dl {
+  margin: 1.5rem 0;
+  
+  dt {
+    font-weight: 600;
+    color: $navy-dark;
+    margin-top: 1rem;
+    
+    &::after {
+      content: "";
+      display: block;
+      width: 2rem;
+      height: 2px;
+      background-color: $gold;
+      margin: 0.3rem 0 0.5rem;
+    }
+  }
+  
+  dd {
+    margin-left: 1rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
+// Improved styling for tabs
+.panel-tabset {
+  margin: 2rem 0;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  overflow: hidden;
+  
+  .nav-tabs {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid $gold;
+    
+    .nav-item {
+      margin-bottom: -2px;
+      
+      .nav-link {
+        padding: 0.75rem 1.25rem;
+        color: $navy-medium;
+        border: none;
+        border-radius: 0;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          color: $navy-dark;
+          background-color: rgba(255, 195, 0, 0.1);
+        }
+        
+        &.active {
+          color: $navy-dark;
+          font-weight: 500;
+          background-color: white;
+          border-top: 2px solid $gold;
+          border-left: 1px solid #e9ecef;
+          border-right: 1px solid #e9ecef;
+          border-bottom: 2px solid white;
+          margin-bottom: -2px;
+        }
+      }
+    }
+  }
+  
+  .tab-content {
+    padding: 1.5rem;
+    
+    > :first-child {
+      margin-top: 0;
+    }
+    
+    > :last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+// Improved styling for pagination
+.quarto-listing-category {
+  .listing-category {
+    color: $navy-medium;
+    background-color: rgba(0, 53, 102, 0.05);
+    border: 1px solid rgba(0, 53, 102, 0.1);
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      color: white;
+      background-color: $navy-medium;
+      text-decoration: none;
+    }
+  }
+}
+
+.pagination {
+  .page-item {
+    .page-link {
+      color: $navy-medium;
+      border: 1px solid #e9ecef;
+      
+      &:hover {
+        background-color: rgba(255, 195, 0, 0.1);
+        border-color: $gold;
+      }
+    }
+    
+    &.active .page-link {
+      background-color: $navy-medium;
+      border-color: $navy-medium;
+      color: white;
+    }
+    
+    &.disabled .page-link {
+      color: #6c757d;
+    }
+  }
+}
+
+// Custom styling for section anchors
+.anchor-section {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  color: $gold;
+  margin-left: 0.5rem;
+  
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+:hover > .anchor-section {
+  opacity: 1;
+}
+
+// Style quarto title block
+.quarto-title {
+  margin-bottom: 2.5rem;
+  
+  .quarto-title-block {
+    .quarto-title-banner {
+      background-color: $navy-dark;
+      color: white;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      border-radius: 6px;
+      position: relative;
+      overflow: hidden;
+      
+      &::before {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(90deg, $gold, $gold-light);
+      }
+      
+      .quarto-title {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+      }
+      
+      .quarto-categories {
+        margin-top: 1rem;
+        
+        .quarto-category {
+          background-color: rgba(255, 255, 255, 0.2);
+          color: white;
+          border-radius: 4px;
+          padding: 0.3rem 0.6rem;
+          font-size: 0.8rem;
+          margin-right: 0.5rem;
+          transition: background-color 0.2s ease;
+          
+          &:hover {
+            background-color: $gold;
+            color: $navy-dark;
+            text-decoration: none;
+          }
+        }
+      }
+    }
+    
+    .quarto-title-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+      
+      .quarto-title-meta-heading {
+        font-weight: 600;
+        color: $navy-dark;
+        margin-bottom: 0.25rem;
+      }
+      
+      .quarto-title-meta-contents {
+        color: $navy-black;
+      }
+    }
+  }
+}
+
+// Style for search interface
+.quarto-search-results {
+  background-color: white;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  
+  .search-result-title {
+    color: $navy-dark;
+    font-weight: 600;
+    
+    &:hover {
+      color: $gold;
+    }
+  }
+  
+  .search-result-highlight {
+    background-color: rgba(255, 214, 10, 0.3);
+    padding: 0.1rem 0;
+  }
+}
