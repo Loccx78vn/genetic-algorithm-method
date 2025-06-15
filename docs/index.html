@@ -38,7 +38,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-17f353342b47b0021f2114b007a947a2.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-28a65b7dd982fa69cc6f126b22a4a3ae.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-e161d7a76ca30c5d6e6caead086612c0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -72,45 +72,97 @@ ul.task-list li input[type="checkbox"] {
 
   document.addEventListener('DOMContentLoaded', function () {
 
+    const sidebar = document.querySelector('.sidebar nav[role="doc-toc"]');
+
+    if (!sidebar) return;
+
+
+
+    // Create and insert search input
+
     const input = document.createElement('input');
 
     input.type = 'text';
 
     input.id = 'toc-search';
 
-    input.placeholder = 'Searching...';
+    input.placeholder = 'Search...';
 
-    input.className = 'quarto-search-input';
+    input.classList.add('toc-search'); // for styling
 
-
-
-    const sidebar = document.querySelector('.sidebar nav[role="doc-toc"]');
-
-    if (sidebar) {
-
-      sidebar.prepend(input);
+    sidebar.prepend(input);
 
 
 
-      const links = sidebar.querySelectorAll('ul > li > a');
+    // Select all TOC links and list items, all nested levels
 
-      input.addEventListener('input', function () {
+    const allLinks = sidebar.querySelectorAll('ul li a');
 
-        const query = this.value.toLowerCase();
+    const allItems = sidebar.querySelectorAll('ul li');
 
-        links.forEach(link => {
 
-          const text = link.textContent.toLowerCase();
 
-          const match = text.includes(query);
+    input.addEventListener('input', function () {
 
-          link.parentElement.style.display = match ? '' : 'none';
+      const query = this.value.trim().toLowerCase();
 
-        });
+
+
+      // Hide all items initially
+
+      allItems.forEach(item => {
+
+        item.dataset.searchHidden = 'true';
 
       });
 
-    }
+
+
+      // Show matching items and all their ancestor <li>s recursively
+
+      allLinks.forEach(link => {
+
+        const text = link.textContent.toLowerCase();
+
+        if (text.includes(query)) {
+
+          let current = link.closest('li');
+
+          while (current && current.tagName === 'LI') {
+
+            current.dataset.searchHidden = 'false';
+
+            // Move up: parent <li> if nested, else null
+
+            current = current.parentElement.closest('li');
+
+          }
+
+        }
+
+      });
+
+
+
+      // Show or hide items based on dataset flag
+
+      allItems.forEach(item => {
+
+        // If search is empty, show all items
+
+        if (query === '') {
+
+          item.style.display = '';
+
+        } else {
+
+          item.style.display = (item.dataset.searchHidden === 'true') ? 'none' : '';
+
+        }
+
+      });
+
+    });
 
   });
 
@@ -145,6 +197,20 @@ ul.task-list li input[type="checkbox"] {
   <li class="nav-item">
     <a class="nav-link" href="./GA.html"> 
 <span class="menu-text"><i class="fa-solid fa-dna"></i> Genetic Algorithm</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="https://github.com/Loccx78vn"> 
+<span class="menu-text"><i class="fab fa-github"></i></span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://www.facebook.com/cao.loc.9693"> 
+<span class="menu-text"><i class="fab fa-facebook"></i></span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://rpubs.com/loccx"> 
+<span class="menu-text"><img src="https://www.r-project.org/Rlogo.png" width="20" style="margin-right:5px;"></span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -274,7 +340,7 @@ ul.task-list li input[type="checkbox"] {
         }
     </style>
     <div class="container">
-        <a href="https://loccx78vn.github.io/Genetic-Algorithm/GA.html" class="link" tabindex="0">
+        <a href="https://loccx78vn.github.io/genetic-algorithm-method/GA.html" class="link" tabindex="0">
             Go to Next Page
             <span class="arrow">➔</span>
         </a>

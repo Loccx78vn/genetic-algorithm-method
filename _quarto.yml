@@ -10,6 +10,15 @@ website:
         text: "<i class='fa-solid fa-house'></i> Home"
       - href: GA.qmd
         text: "<i class='fa-solid fa-dna'></i> Genetic Algorithm"
+    right:
+      - text: "<i class='fab fa-github'></i>"
+        href: https://github.com/Loccx78vn
+
+      - text: "<i class='fab fa-facebook'></i>"
+        href: https://www.facebook.com/cao.loc.9693
+
+      - text: "<img src='https://www.r-project.org/Rlogo.png' width='20' style='margin-right:5px;'>"
+        href: https://rpubs.com/loccx
   page-footer:
     right: "<i class='fa-solid fa-book'></i> Built with [Quarto](https://quarto.org/)"
     left: "© Copyright 2025, [Loc cao](https://github.com/Loccx78vn) <i class='fa-solid fa-heart'></i>"

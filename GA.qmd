@@ -8,6 +8,9 @@ format:
   html:
     code-fold: true
     code-tools: true
+crossref:
+  labels: alpha a        
+  subref-labels: roman
 filters:
   - quarto-ext/shinylive
 bibliography: references.bib
@@ -324,13 +327,16 @@ loading_costs_per_dc <- as.matrix(mean_cost_matrix[,-1])
 rownames(loading_costs_per_dc) <- mean_loading_cost$Warehouse[!duplicated(mean_loading_cost$Warehouse)]
 ```
 
+
+::: {.panel-tabset}
+
+### Bảng chi phí bốc xếp
+
 ```{r}
 #| warning: false
 #| message: false
 #| echo: false
-#| fig-cap: "Tổng các phi phí cho việc bốc xếp và vận chuyển hàng hóa"
-#| fig-subcap: ["Biểu đồ 2: Heatmap cho bảng chi phí bốc xếp", "Biểu đồ 3: Bảng giá vận chuyển từ WH đến DC"]
-#| layout-ncol: 2
+#| fig-cap: ["Biểu đồ 2: Heatmap cho bảng chi phí bốc xếp"]
 # Code tạo hai biểu đồ
 
 library(ggplot2)
@@ -374,6 +380,16 @@ ggplot(distance_df, aes(x = Warehouse,
     legend.position = "right"
   )
 
+```
+
+
+### Bảng giá vận chuyển:
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: false
+#| fig-cap: ["Biểu đồ 3: Bảng giá vận chuyển từ WH đến DC"]
 # Convert the transportation costs matrix to a data frame
 library(gt)
 library(gtExtras)
@@ -423,6 +439,8 @@ head(m[order(-m$Loading_Cost),]) %>%
   )
   
 ```
+
+:::
 
 ### Xây dựng hàm mục tiêu:
 
@@ -689,13 +707,13 @@ result <- data.frame(
 
 # Custom icon:
 warehouse_icon <- makeIcon(
-  iconUrl = "https://raw.githubusercontent.com/Loccx78vn/Genetic-Algorithm/refs/heads/main/warehouse_icon.png",
+  iconUrl = "https://raw.githubusercontent.com/Loccx78vn/genetic-algorithm-method/refs/heads/main/img/warehouse_icon.png",
   iconWidth = 30,
   iconHeight = 30
 )
 
 dc_icon <- makeIcon(
-  iconUrl = "https://raw.githubusercontent.com/Loccx78vn/Genetic-Algorithm/refs/heads/main/distribution_center.png",
+  iconUrl = "https://raw.githubusercontent.com/Loccx78vn/genetic-algorithm-method/refs/heads/main/img/distribution_center.png",
   iconWidth = 30,
   iconHeight = 30
 )
@@ -775,7 +793,7 @@ ui <- page_fluid(
       tags$div(
         class = "d-flex align-items-center",
         tags$img(
-          src = "https://raw.githubusercontent.com/Loccx78vn/Genetic-Algorithm/refs/heads/main/warehouse_icon.png", 
+          src = "https://raw.githubusercontent.com/Loccx78vn/genetic-algorithm-method/refs/heads/main/img/supply-chain-management.png", 
           height = "30px", 
           style = "margin-right: 10px;"
         ),
@@ -1345,74 +1363,10 @@ Như vậy, chúng ta đã được học về thuật toán Genetic và mô hì
 
 Nếu bạn có câu hỏi hay thắc mắc nào, đừng ngần ngại liên hệ với mình qua Gmail. Bên cạnh đó, nếu bạn muốn xem lại các bài viết trước đây của mình, hãy nhấn vào hai nút dưới đây để truy cập trang **Rpubs** hoặc mã nguồn trên **Github**. Rất vui được đồng hành cùng bạn, hẹn gặp lại! 😄😄😄
 
-```{=html}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Me</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-icons@v6.0.0/svgs/rstudio.svg">
-    <style>
-        body { font-family: Arial, sans-serif; background-color: $secondary-color; }
-        .container { max-width: 400px; margin: auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }
-        label { display: block; margin: 10px 0 5px; }
-        input[type="email"] { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; }
-        .github-button, .rpubs-button { margin-top: 20px; text-align: center; }
-        .github-button button, .rpubs-button button { background-color: #333; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 4px; width: 100%; }
-        .github-button button:hover, .rpubs-button button:hover { background-color: #555; }
-        .rpubs-button button { background-color: #75AADB; }
-        .rpubs-button button:hover { background-color: #5A9BC2; }
-        .rpubs-icon { margin-right: 5px; width: 20px; vertical-align: middle; filter: brightness(0) invert(1); }
-        .error-message { color: red; font-size: 0.9em; margin-top: 5px; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h2>Contact Me</h2>
-        <form id="emailForm">
-            <label for="email">Your Email:</label>
-            <input type="email" id="email" name="email" required aria-label="Email Address">
-            <div class="error-message" id="error-message" style="display: none;">Please enter a valid email address.</div>
-            <button type="submit">Send Email</button>
-        </form>
-        <div class="github-button">
-            <button>
-                <a href="https://github.com/Loccx78vn" target="_blank" style="color: white; text-decoration: none;">
-                    <i class="fab fa-github"></i> View Code on GitHub
-                </a>
-            </button>
-        </div>
-        <div class="rpubs-button">
-            <button>
-                <a href="https://rpubs.com/loccx" target="_blank" style="color: white; text-decoration: none;">
-                    <img src="https://cdn.jsdelivr.net/npm/simple-icons@v6.0.0/icons/rstudio.svg" alt="RStudio icon" class="rpubs-icon"> Visit my RPubs
-                </a>
-            </button>
-        </div>
-    </div>
 
-    <script>
-        document.getElementById('emailForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent default form submission
-            const emailInput = document.getElementById('email');
-            const email = emailInput.value;
-            const errorMessage = document.getElementById('error-message');
-
-            // Simple email validation regex
-            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-            if (emailPattern.test(email)) {
-                errorMessage.style.display = 'none'; // Hide error message
-                const yourEmail = 'loccaoxuan103@gmail.com'; // Your email
-                const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${yourEmail}&su=Help%20Request%20from%20${encodeURIComponent(email)}`;
-                window.open(gmailLink, '_blank'); // Open in new tab
-            } else {
-                errorMessage.style.display = 'block'; // Show error message
-            }
-        });
-    </script>
-</body>
-</html>
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+htmltools::includeHTML("message.html")
 ```

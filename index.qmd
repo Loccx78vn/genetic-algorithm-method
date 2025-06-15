@@ -133,7 +133,7 @@ Hi vọng các bạn sẽ thích bài viết của mình!
 </head>
 <body>
     <div class="container">
-        <a href="https://loccx78vn.github.io/Genetic-Algorithm/GA.html" class="link" tabindex="0">
+        <a href="https://loccx78vn.github.io/genetic-algorithm-method/GA.html" class="link" tabindex="0">
             Go to Next Page
             <span class="arrow">➔</span>
         </a>

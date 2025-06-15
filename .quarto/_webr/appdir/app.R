@@ -76,13 +76,13 @@ result <- data.frame(
 
 # Custom icon:
 warehouse_icon <- makeIcon(
-  iconUrl = "https://raw.githubusercontent.com/Loccx78vn/Genetic-Algorithm/refs/heads/main/warehouse_icon.png",
+  iconUrl = "https://raw.githubusercontent.com/Loccx78vn/genetic-algorithm-method/refs/heads/main/img/warehouse_icon.png",
   iconWidth = 30,
   iconHeight = 30
 )
 
 dc_icon <- makeIcon(
-  iconUrl = "https://raw.githubusercontent.com/Loccx78vn/Genetic-Algorithm/refs/heads/main/distribution_center.png",
+  iconUrl = "https://raw.githubusercontent.com/Loccx78vn/genetic-algorithm-method/refs/heads/main/img/distribution_center.png",
   iconWidth = 30,
   iconHeight = 30
 )
@@ -162,7 +162,7 @@ ui <- page_fluid(
       tags$div(
         class = "d-flex align-items-center",
         tags$img(
-          src = "https://raw.githubusercontent.com/Loccx78vn/Genetic-Algorithm/refs/heads/main/warehouse_icon.png", 
+          src = "https://raw.githubusercontent.com/Loccx78vn/genetic-algorithm-method/refs/heads/main/img/supply-chain-management.png", 
           height = "30px", 
           style = "margin-right: 10px;"
         ),

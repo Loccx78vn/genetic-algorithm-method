@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact Me</title>
+  
+  <!-- External dependencies -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+  <style>
+    .contact-card-wrapper {
+      --primary-color: #4361ee;
+      --github-color: #333;
+      --rpubs-color: #276DC3;
+      --card-bg: #ffffff;
+      --bg-color: #f5f7fa;
+      --border-radius: 8px;
+      --transition: 0.3s ease;
+      padding: 1rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .contact-card-wrapper .contact-card {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+      max-width: 550px;
+      width: 100%;
+    }
+
+    .contact-card-wrapper .contact-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .contact-card-wrapper .form-control:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+    }
+
+    .contact-card-wrapper .btn-submit {
+      background-color: var(--primary-color);
+      border: none;
+      font-weight: 500;
+      color: white;
+    }
+
+    .contact-card-wrapper .btn-submit:hover {
+      background-color: #3251d8;
+    }
+
+    .contact-card-wrapper .btn-github {
+      background-color: var(--github-color);
+      color: white;
+      border: none;
+    }
+
+    .contact-card-wrapper .btn-github:hover {
+      background-color: #444;
+    }
+
+    .contact-card-wrapper .btn-rpubs {
+      background-color: var(--rpubs-color);
+      color: white;
+      border: none;
+    }
+
+    .contact-card-wrapper .btn-rpubs:hover {
+      background-color: #1f5ab0;
+    }
+
+    .contact-card-wrapper .btn-linkedin {
+      background-color: #0077B5;
+      color: white;
+      border: none;
+    }
+
+    .contact-card-wrapper .btn-linkedin:hover {
+      background-color: #006295;
+    }
+
+    .contact-card-wrapper .avatar-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 15px;
+    }
+
+    .contact-card-wrapper .avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--primary-color);
+    }
+
+    .contact-card-wrapper .form-group {
+      margin-bottom: 12px;
+    }
+
+    .contact-card-wrapper .avatar-section,
+    .contact-card-wrapper .social-section,
+    .contact-card-wrapper .form-section {
+      padding: 20px;
+      text-align: center;
+    }
+
+    .contact-card-wrapper .social-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .contact-card-wrapper .social-btn {
+      flex: 1;
+      min-width: 100px;
+      max-width: 150px;
+    }
+
+    .contact-card-wrapper .textarea-message {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .contact-card-wrapper .alert {
+      border-radius: 8px;
+    }
+
+    @media (max-width: 576px) {
+      .contact-card-wrapper .social-buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="contact-card-wrapper">
+    <div class="contact-card">
+      <!-- Avatar Section -->
+      <div class="avatar-section">
+        <div class="avatar-container">
+          <img src="https://avatars.githubusercontent.com/u/583231?v=4" class="avatar" alt="Profile Avatar">
+        </div>
+        <h2 class="mb-1 text-center">Contact Me</h2>
+      </div>
+
+      <!-- Social Buttons -->
+      <div class="social-section">
+        <div class="social-buttons">
+          <button type="button" id="githubBtn" class="btn btn-github btn-lg social-btn">
+            <i class="fab fa-github"></i> GitHub
+          </button>
+          <button type="button" id="rpubsBtn" class="btn btn-rpubs btn-lg social-btn">
+            <i class="fab fa-r-project"></i> RPubs
+          </button>
+          <button type="button" id="linkedinBtn" class="btn btn-linkedin btn-lg social-btn">
+            <i class="fab fa-linkedin"></i> LinkedIn
+          </button>
+        </div>
+      </div>
+
+      <!-- Form Section -->
+      <div class="form-section">
+        <form id="contactForm">
+          <div class="form-group text-start">
+            <label for="name">Your Name</label>
+            <input type="text" class="form-control" id="name" placeholder="John Doe">
+          </div>
+
+          <div class="form-group text-start">
+            <label for="email">Your Email</label>
+            <input type="email" class="form-control" id="email" placeholder="you@example.com">
+          </div>
+
+          <div class="form-group text-start">
+            <label for="subject">Subject</label>
+            <select class="form-control" id="subject">
+              <option>General Inquiry</option>
+              <option>Collaboration</option>
+              <option>Project Help</option>
+              <option>Other</option>
+            </select>
+          </div>
+
+          <div class="form-group text-start">
+            <label for="message">Message</label>
+            <textarea class="form-control textarea-message" id="message" rows="4" placeholder="How can I help you?"></textarea>
+          </div>
+
+          <div id="status"></div>
+
+          <div class="d-grid mt-3">
+            <button type="button" id="submitBtn" class="btn btn-submit btn-lg">
+              <i class="fas fa-paper-plane"></i> Send Message
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const contactForm = document.getElementById('contactForm');
+      const submitBtn = document.getElementById('submitBtn');
+      const statusDiv = document.getElementById('status');
+
+      function validateEmail(email) {
+        const regex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+        return regex.test(email);
+      }
+
+      submitBtn.addEventListener('click', function () {
+        statusDiv.innerHTML = '';
+
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const message = document.getElementById('message').value;
+
+        if (!name) {
+          statusDiv.innerHTML = '<div class="alert alert-danger">Please enter your name</div>';
+          return;
+        }
+
+        if (!email || !validateEmail(email)) {
+          statusDiv.innerHTML = '<div class="alert alert-danger">Please enter a valid email address</div>';
+          return;
+        }
+
+        if (!message) {
+          statusDiv.innerHTML = '<div class="alert alert-danger">Please enter a message</div>';
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+        setTimeout(() => {
+          statusDiv.innerHTML = '<div class="alert alert-success">Message sent successfully!</div>';
+          contactForm.reset();
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Message';
+        }, 1000);
+      });
+
+      document.getElementById('githubBtn').addEventListener('click', () => {
+        window.open('https://github.com/Loccx78vn', '_blank');
+      });
+
+            document.getElementById('rpubsBtn').addEventListener('click', () => {
+        window.open('https://rpubs.com/loccx', '_blank');
+      });
+
+      document.getElementById('linkedinBtn').addEventListener('click', () => {
+        window.open('https://www.linkedin.com/', '_blank');
+      });
+    });
+  </script>
+</body>
+</html>
+
