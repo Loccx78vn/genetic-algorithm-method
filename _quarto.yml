@@ -10,9 +10,11 @@ website:
         text: "<i class='fa-solid fa-house'></i> Home"
       - href: GA.qmd
         text: "<i class='fa-solid fa-dna'></i> Genetic Algorithm"
+      - href: MILP.qmd
+        text: "<i class='fa-solid fa-calculator'></i> MILP model"
     right:
       - text: "<i class='fab fa-github'></i>"
-        href: https://github.com/Loccx78vn
+        href: https://github.com/Loccx78vn/genetic-algorithm-method
 
       - text: "<i class='fab fa-facebook'></i>"
         href: https://www.facebook.com/cao.loc.9693
@@ -26,6 +28,10 @@ website:
 format:
   html:
     theme: theme.scss 
+    grid:
+      sidebar-width: 300px    
+      body-width: 900px       
+      margin-width: 400px    
     toc: true
     include-in-header: 
       - toc-filter.html

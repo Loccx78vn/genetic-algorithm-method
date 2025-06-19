@@ -58,156 +58,656 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-// Navbar styling
+// Enhanced navbar styling with bigger dimensions and wow effects
 .navbar {
   background-color: $navy-dark;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  border-bottom: 3px solid $gold;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  border-bottom: 4px solid $gold;
+  height: 80px; // Increased height
+  padding: 0.8rem 1.5rem; // More padding
+  
+  // Rich gradient background with subtle animation
+  background: linear-gradient(135deg, 
+    darken($navy-dark, 8%) 0%, 
+    $navy-dark 50%, 
+    darken($navy-dark, 5%) 100%);
+  background-size: 200% 200%;
+  animation: gradientShift 15s ease infinite;
   
   .navbar-title {
     color: white;
-    font-weight: 600;
+    font-weight: 800; // Bolder
+    font-size: 1.6rem; // Larger font
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    position: relative;
+    padding: 0.4rem 0;
+    margin-right: 1.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     
+    // Gold border effect
+    border-right: 2px solid rgba($gold, 0.3);
+    padding-right: 1.5rem;
+    
+    // Glowing effect on hover
     &:hover {
       color: $gold-light;
+      text-shadow: 0 0 10px rgba($gold, 0.7);
+      
+      &:before {
+        transform: scaleX(1);
+        opacity: 1;
+      }
+    }
+    
+    // Animated underline
+    &:before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 3px;
+      bottom: 0;
+      left: 0;
+      background: linear-gradient(to right, $gold, lighten($gold, 20%), $gold);
+      transform: scaleX(0);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transform-origin: left;
     }
   }
   
   .navbar-brand-logo {
-    max-height: 40px;
+    max-height: 55px; // Bigger logo
+    margin-right: 1rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    transition: all 0.4s ease;
+    
+    &:hover {
+      transform: scale(1.08) rotate(2deg);
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4)) brightness(1.1);
+    }
   }
   
   .nav-link {
-    color: rgba(255, 255, 255, 0.85);
-    margin: 0 0.25rem;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    transition: all 0.2s ease;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0 0.5rem;
+    padding: 0.7rem 1.4rem; // Bigger padding
+    border-radius: 6px;
+    font-size: 1.1rem; // Bigger font
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+    
+    // Glowing border effect
+    border: 1px solid rgba(255, 255, 255, 0);
+    
+    // Background shine effect
+    &:after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 20%;
+      height: 200%;
+      background: rgba(255, 255, 255, 0.1);
+      transform: rotate(30deg);
+      transition: all 0.6s ease;
+    }
     
     &:hover, &:focus {
       color: $gold-light;
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-3px);
+      border-color: rgba($gold, 0.3);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba($gold, 0.1);
+      
+      &:after {
+        left: 120%;
+      }
     }
     
     &.active {
       color: $navy-dark;
-      background-color: $gold;
-      font-weight: 500;
+      background: linear-gradient(to right, $gold, lighten($gold, 10%));
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(darken($gold, 20%), 0.4);
+      border: 1px solid rgba(darken($gold, 5%), 0.5);
       
       &:hover {
         color: $navy-dark;
-        background-color: $gold-light;
+        background: linear-gradient(to right, lighten($gold, 5%), lighten($gold, 15%));
+        transform: translateY(-3px);
+        box-shadow: 0 7px 14px rgba(darken($gold, 20%), 0.4);
+      }
+    }
+  }
+  
+  // Super enhanced dropdown styling
+  .dropdown-menu {
+    background-color: rgba(darken($navy-dark, 3%), 0.95);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba($gold, 0.3);
+    border-radius: 8px;
+    margin-top: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba($gold, 0.1);
+    padding: 0.8rem;
+    min-width: 220px;
+    
+    &:before {
+      content: '';
+      position: absolute;
+      top: -8px;
+      left: 30px;
+      width: 16px;
+      height: 16px;
+      background-color: rgba(darken($navy-dark, 3%), 0.95);
+      transform: rotate(45deg);
+      border-top: 1px solid rgba($gold, 0.3);
+      border-left: 1px solid rgba($gold, 0.3);
+    }
+    
+    .dropdown-item {
+      color: rgba(255, 255, 255, 0.8);
+      border-radius: 6px;
+      padding: 0.8rem 1.2rem;
+      font-size: 1rem;
+      margin-bottom: 0.3rem;
+      position: relative;
+      border-left: 3px solid transparent;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        background-color: rgba($gold, 0.2);
+        color: $gold-light;
+        transform: translateX(5px);
+        border-left-color: $gold;
+        padding-left: 1.5rem;
+      }
+      
+      &.active {
+        background: linear-gradient(to right, rgba($gold, 0.8), rgba($gold, 0.6));
+        color: $navy-dark;
+        font-weight: 600;
       }
     }
   }
   
   .navbar-toggler {
-    border-color: rgba(255, 255, 255, 0.5);
+    border: 2px solid rgba($gold, 0.5);
+    padding: 0.6rem 0.8rem;
+    border-radius: 8px;
+    margin-right: 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    
+    .navbar-toggler-icon {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 215, 0, 0.8%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+      width: 28px;
+      height: 28px;
+    }
     
     &:hover {
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: rgba($gold, 0.15);
+      border-color: $gold;
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 3px rgba($gold, 0.2);
     }
+    
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 4px rgba($gold, 0.3);
+    }
+  }
+  
+  // Enhanced search box
+  .navbar-search {
+    position: relative;
+    margin-left: 1.5rem;
+    
+    input {
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 30px;
+      color: white;
+      padding: 0.7rem 1.2rem 0.7rem 2.8rem;
+      font-size: 1rem;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      width: 180px;
+      
+      &:focus {
+        background-color: rgba(255, 255, 255, 0.15);
+        border-color: rgba($gold, 0.6);
+        box-shadow: 0 0 0 4px rgba($gold, 0.2), 0 5px 15px rgba(0, 0, 0, 0.1);
+        width: 250px;
+        outline: none;
+      }
+      
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+        font-style: italic;
+      }
+    }
+    
+    &:before {
+      content: "\f002"; // FontAwesome search icon
+      font-family: "Font Awesome 5 Free";
+      font-weight: 900;
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba($gold, 0.7);
+      z-index: 1;
+      font-size: 1rem;
+      pointer-events: none;
+      transition: all 0.3s ease;
+    }
+    
+    &:hover:before {
+      color: $gold;
+    }
+  }
+  
+  // Add announcement or beta badge
+  .navbar-badge {
+    display: inline-block;
+    margin-left: 1rem;
+    background: linear-gradient(135deg, #ff7e5f, #feb47b);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    animation: pulse 2s infinite;
   }
 }
 
+// Pulse animation for badges
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 126, 95, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 126, 95, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 126, 95, 0);
+  }
+}
+
+// Gradient shift animation
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+// Add custom animation for navbar links
+.navbar .nav-item {
+  position: relative;
+  
+  // Notification dot for new items
+  &.has-notification::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
+    background-color: #ff4757;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px $navy-dark;
+    animation: pulse 1.5s infinite;
+  }
+  
+  // Special effects for nav items
+  &:nth-child(1) .nav-link:hover { border-bottom-color: #ff7e5f; }
+  &:nth-child(2) .nav-link:hover { border-bottom-color: #7bed9f; }
+  &:nth-child(3) .nav-link:hover { border-bottom-color: #70a1ff; }
+  &:nth-child(4) .nav-link:hover { border-bottom-color: #eccc68; }
+  &:nth-child(5) .nav-link:hover { border-bottom-color: #a29bfe; }
+}
+
+// Enhanced nav item with border indicator
+.nav-link {
+  border-bottom: 3px solid transparent;
+  margin-top: 3px;
+  
+  // Glow effect for active links
+  &.active {
+    text-shadow: 0 0 5px rgba($gold, 0.7);
+  }
+}
+
+// Dark mode toggle in navbar
+.navbar-dark-mode-toggle {
+  background: none;
+  border: 2px solid rgba($gold, 0.3);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  
+  &:before {
+    content: "☀️";
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+  }
+  
+  &:hover {
+    transform: rotate(15deg);
+    border-color: $gold;
+    box-shadow: 0 0 15px rgba($gold, 0.5);
+  }
+  
+  &.dark-mode-active:before {
+    content: "🌙";
+    transform: rotate(-180deg);
+  }
+}
+
+// Add a stunning highlight effect for current section
+.navbar-highlight-indicator {
+  position: absolute;
+  height: 3px;
+  bottom: -4px;
+  background: linear-gradient(to right, 
+    $gold, 
+    lighten($gold, 20%), 
+    $gold
+  );
+  border-radius: 3px;
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  box-shadow: 0 2px 8px rgba($gold, 0.5);
+}
+
+// Social icons in navbar
+.navbar-social-icons {
+  display: flex;
+  align-items: center;
+  margin-left: 15px;
+  
+  a {
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0 8px;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      color: $gold;
+      transform: scale(1.2) rotate(5deg);
+    }
+    
+    &.github:hover { color: #6e5494; }
+    &.twitter:hover { color: #1DA1F2; }
+    &.linkedin:hover { color: #0077B5; }
+  }
+}
+
+// Language selector dropdown
+.navbar-language-selector {
+  margin-left: 15px;
+  position: relative;
+  
+  select {
+    appearance: none;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba($gold, 0.3);
+    border-radius: 20px;
+    color: white;
+    padding: 0.4rem 2.2rem 0.4rem 1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    &:hover, &:focus {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: $gold;
+      box-shadow: 0 0 0 2px rgba($gold, 0.2);
+    }
+    
+    option {
+      background-color: $navy-dark;
+    }
+  }
+  
+  &:after {
+    content: "▼";
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $gold;
+    pointer-events: none;
+    font-size: 0.7rem;
+  }
+}
+
+// For mobile screens
+@media (max-width: 991.98px) {
+  .navbar {
+    padding: 0.6rem 1rem;
+    
+    .navbar-collapse {
+      background-color: rgba(darken($navy-dark, 3%), 0.98);
+      backdrop-filter: blur(10px);
+      margin: 0 -1rem;
+      padding: 1rem;
+      border-radius: 0 0 10px 10px;
+      border-top: 1px solid rgba($gold, 0.2);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    
+    .nav-link {
+      padding: 1rem 1.5rem;
+      margin: 0.5rem 0;
+      border-radius: 8px;
+      border-left: 4px solid transparent;
+      border-bottom: none;
+      
+      &:hover, &:focus {
+        border-left-color: $gold;
+        transform: translateX(5px);
+      }
+      
+      &.active {
+        border-left: 4px solid $gold;
+      }
+    }
+    
+    .navbar-search {
+      margin: 1rem 0;
+      width: 100%;
+      
+      input {
+        width: 100%;
+        
+        &:focus {
+          width: 100%;
+        }
+      }
+    }
+    
+    .dropdown-menu {
+      background-color: rgba(lighten($navy-dark, 5%), 0.5);
+      border: none;
+      box-shadow: none;
+      padding: 0;
+      margin-top: 0;
+      margin-bottom: 1rem;
+      
+      &:before {
+        display: none;
+      }
+      
+      .dropdown-item {
+        padding: 0.7rem 2rem;
+      }
+    }
+    
+    .navbar-social-icons {
+      margin-top: 1rem;
+      justify-content: center;
+    }
+    
+    .navbar-language-selector,
+    .navbar-dark-mode-toggle {
+      margin: 1rem auto;
+    }
+  }
+}
 // Clipboard icon before TOC section headers
 .sidebar h2::before {
   content: "📋";
   margin-right: 0.5rem;
   font-size: 1.2rem;
   display: inline-block;
+  vertical-align: text-bottom;
 }
 
 .sidebar {
   nav[role="doc-toc"] {
     background-color: $navy-black;
     color: white;
-    padding: 1rem;
+    padding: 1.5rem 1rem;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 
     input.toc-search {
       width: 100%;
-      padding: 0.5rem 0.75rem;
-      margin-bottom: 1rem;
+      padding: 0.6rem 0.75rem;
+      margin-bottom: 1.2rem;
       font-size: 1rem;
       border: 1px solid $navy-medium;
-      border-radius: 4px;
+      border-radius: 6px;
       background-color: $navy-dark;
       color: white;
       outline: none;
-      transition: border-color 0.3s, box-shadow 0.3s;
+      transition: all 0.25s ease-in-out;
 
       &::placeholder {
         color: lighten($navy-black, 40%);
+        opacity: 0.7;
       }
 
       &:focus {
         border-color: $gold;
-        box-shadow: 0 0 6px $gold-light;
+        box-shadow: 0 0 8px rgba($gold, 0.4);
+        transform: translateY(-1px);
       }
     }
 
-  ul {
+    ul {
       list-style: none;
       margin: 0;
       padding: 0;
 
       li {
-        margin: 0;
+        margin: 0.2rem 0;
         padding: 0;
 
         a {
           position: relative;
           display: flex;
-          align-items: left;
-          color: white;
+          align-items: center;
+          color: rgba(255, 255, 255, 0.85);
           text-decoration: none;
-          padding: 0.25rem 0 0.25rem 2.8rem; // more left padding for bigger arrow + spacing
-          transition: color 0.3s, background-color 0.3s;
+          font-size: 0.95rem;
+          padding: 0.5rem 0.8rem 0.5rem 2.5rem;
+          border-radius: 4px;
+          transition: all 0.2s ease-out;
+          line-height: 1.4;
 
           &:hover {
             color: $gold-light;
-            background-color: rgba($gold, 0.15);
+            background-color: rgba($gold, 0.1);
+            padding-left: 2.7rem;
           }
 
           &.active {
             color: $gold;
-            font-weight: 700;
-            background-color: rgba($gold, 0.3);
+            font-weight: 600;
+            background-color: rgba($gold, 0.15);
+            box-shadow: inset 3px 0 0 $gold;
 
             &::before {
-              content: "▾";
-              position: absolute;
-              left: 0.6rem;       // shifted a bit right for bigger arrow
-              font-size: 1.3rem;  // bigger arrow font size
+              transform: rotate(90deg);
               color: $gold;
-              transition: transform 0.3s;
-              transform-origin: center;
             }
           }
 
           &::before {
             content: "▸";
             position: absolute;
-            left: 0.6rem;        // match active arrow left position
-            font-size: 1.3rem;   // bigger arrow font size
-            color: $gold-light;
-            cursor: pointer;
-            transition: transform 0.3s, color 0.3s;
-            margin-right: 0.4rem; // spacing between arrow and text
+            left: 0.8rem;
+            font-size: 1rem;
+            color: rgba($gold-light, 0.7);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                        color 0.2s ease;
           }
+        }
 
-          &.active::before {
-            transform: rotate(90deg);
-            color: $gold;
+        // Indentation for nested TOC items
+        ul {
+          margin: 0.3rem 0 0.3rem 1rem;
+          padding-left: 0.8rem;
+          border-left: 1px solid rgba($gold, 0.2);
+          
+          li a {
+            font-size: 0.9rem;
+            padding: 0.4rem 0.6rem 0.4rem 2.2rem;
+            
+            &::before {
+              font-size: 0.9rem;
+              left: 0.6rem;
+            }
           }
         }
       }
     }
+    
+    // Scrollbar customization
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: $navy-dark;
+      border-radius: 4px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: lighten($navy-medium, 10%);
+      border-radius: 4px;
+      
+      &:hover {
+        background: $gold-light;
+      }
+    }
   }
 }
-
-
 /* Search box styling */
 #toc-search {
   width: 100%;

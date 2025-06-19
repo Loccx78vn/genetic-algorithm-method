@@ -268,25 +268,25 @@ server <- function(input, output, session) {
     route_colors <- c("#FF5733", "#33A8FF", "#33FF57", "#D433FF", "#FFD133")
     
     # Initialize the map
-    map <- leaflet() %>%
-      addTiles() %>%
-      addProviderTiles(providers$CartoDB.Positron) %>%
-      addMarkers(data = warehouses %>% filter(ID %in% location()), 
+    map <- leaflet() |>
+      addTiles() |>
+      addProviderTiles(providers$CartoDB.Positron) |>
+      addMarkers(data = warehouses |> filter(ID %in% location()), 
                  lat = ~Latitude, 
                  lng = ~Longitude, 
                  label = ~paste0("<strong> ID Warehouse: </strong> ", ID, "<br/> ",
                                  "<strong> Province: </strong> ", Province, "<br/> ",
                                  "<strong> District: </strong> ", District, "<br/> ",
-                                 "<strong> Address: </strong> ", Address, "<br/> ") %>% 
+                                 "<strong> Address: </strong> ", Address, "<br/> ") |> 
                    lapply(htmltools::HTML),
-                 icon = warehouse_icon) %>%
+                 icon = warehouse_icon) |>
       addMarkers(data = distribution_centers, 
                  lat = ~Latitude, 
                  lng = ~Longitude, 
                  label = ~paste0("<strong> ID Distribution Center: </strong> ", ID, "<br/> ",
                                  "<strong> Province: </strong> ", Province, "<br/> ",
                                  "<strong> District: </strong> ", District, "<br/> ",
-                                 "<strong> Address: </strong> ", Address, "<br/> ") %>% 
+                                 "<strong> Address: </strong> ", Address, "<br/> ") |> 
                    lapply(htmltools::HTML),
                  icon = dc_icon)
     
@@ -311,7 +311,7 @@ server <- function(input, output, session) {
           weight_multiplier <- qty_data[i, j] / max(optimal_quantities) * 5
           weight <- max(2, min(6, weight_multiplier + 2))  # Scale between 2-6
           
-          map <- map %>%
+          map <- map |>
             addPolylines(
               lat = c(route_start$Latitude, route_end$Latitude),
               lng = c(route_start$Longitude, route_end$Longitude),
@@ -337,8 +337,8 @@ server <- function(input, output, session) {
   output$cost_table <- renderDT({
     req(location())
     
-    cost_data <- result %>% 
-      filter(Warehouse %in% paste("WH", location())) %>% 
+    cost_data <- result |> 
+      filter(Warehouse %in% paste("WH", location())) |> 
       select(c(Warehouse, DC, Loading_Cost, Transport_cost))
     
     # Add a Total Cost column
@@ -364,14 +364,14 @@ server <- function(input, output, session) {
                 )
               ),
               rownames = FALSE,
-              class = 'compact stripe hover') %>%
+              class = 'compact stripe hover') |>
       formatStyle(
         'Warehouse',
         backgroundColor = styleEqual(
           paste("WH", 1:5), 
           c('#FFC3A0', '#A0D2FF', '#C8FFB0', '#D5A0FF', '#FFF0A0')
         )
-      ) %>%
+      ) |>
       formatStyle(
         'DC',
         backgroundColor = styleEqual(
@@ -389,7 +389,7 @@ server <- function(input, output, session) {
   
   # Filter data based on selected warehouses
   filtered_data <- reactive({
-    result %>%
+    result |>
       filter(Warehouse %in% paste("WH",input$warehouse))
   })
 
@@ -493,7 +493,7 @@ server <- function(input, output, session) {
   output$summary_stats <- renderUI({
     req(location())
     
-    selected_data <- result %>% 
+    selected_data <- result |> 
       filter(Warehouse %in% paste("WH", location()))
     
     total_loading <- sum(selected_data$Loading_Cost)

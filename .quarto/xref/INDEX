@@ -10,5 +10,8 @@
   },
   "example.qmd": {
     "example.html": "53d89f2f"
+  },
+  "MILP.qmd": {
+    "MILP.html": "3bcac4c6"
   }
 }

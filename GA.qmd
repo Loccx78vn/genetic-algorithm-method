@@ -50,7 +50,7 @@ Kết cục là xuất hiện các cá thể đột biến "mạnh mẽ hơn" ho
 
 ```{=html}
 <div style="text-align: center; margin-bottom: 20px;">
-  <img src="img/Natural_selection.jpg" style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
+  <img src="img/Natural_selection.jpg" style="max-width: 80%; height: auto; display: block; margin: 0 auto;">
   
   <!-- Picture Name -->
   <div style="text-align: left; margin-top: 10px;">
@@ -244,17 +244,17 @@ dm1 <- dm_from_data_frames(list(
   Warehouses = warehouses,
   Loading_Costs = loading_costs,
   Distribution_Centers = distribution_centers
-)) %>%
-  dm_set_key("Warehouses", "ID") %>%
-  dm_set_key("Loading_Costs", c("Warehouse", "DC")) %>%
-  dm_set_key("Distribution_Centers", "ID") %>%
+)) |>
+  dm_set_key("Warehouses", "ID") |>
+  dm_set_key("Loading_Costs", c("Warehouse", "DC")) |>
+  dm_set_key("Distribution_Centers", "ID") |>
   dm_add_references(
     Loading_Costs$Warehouse == Warehouses$ID,  # Correct reference
     Loading_Costs$DC == Distribution_Centers$ID  # Assuming this is the correct reference
   )
 
 # Create and render the ERD
-dm_create_graph(dm1, rankdir = "LR", columnArrows = TRUE) %>%
+dm_create_graph(dm1, rankdir = "LR", columnArrows = TRUE) |>
   dm_render_graph()
 ```
 
@@ -309,9 +309,9 @@ transportation_costs <- distance_matrix * fuel_price * 0.4
 ## Calculate the loading cost:
 weights_per_good <- 0.1
 
-mean_loading_cost<-loading_costs %>% 
-  group_by(DC, Warehouse) %>% 
-  summarise(mean = mean(Loading_Cost,na.rm = TRUE)/1000/weights_per_good) %>% # Assumes weighted of goods is 0.1kg 
+mean_loading_cost<-loading_costs |> 
+  group_by(DC, Warehouse) |> 
+  summarise(mean = mean(Loading_Cost,na.rm = TRUE)/1000/weights_per_good) |> # Assumes weighted of goods is 0.1kg 
   ungroup()
 
 library(data.table)
@@ -330,7 +330,7 @@ rownames(loading_costs_per_dc) <- mean_loading_cost$Warehouse[!duplicated(mean_l
 
 ::: {.panel-tabset}
 
-### Bảng chi phí bốc xếp
+#### Bảng chi phí bốc xếp
 
 ```{r}
 #| warning: false
@@ -383,7 +383,7 @@ ggplot(distance_df, aes(x = Warehouse,
 ```
 
 
-### Bảng giá vận chuyển:
+#### Bảng giá vận chuyển:
 
 ```{r}
 #| warning: false
@@ -394,36 +394,36 @@ ggplot(distance_df, aes(x = Warehouse,
 library(gt)
 library(gtExtras)
 # Create a gt table
-m<-loading_costs %>%
+m<-loading_costs |>
   mutate(Loading_Cost = Loading_Cost * 1000,
          DC = paste("DC",DC),
          Warehouse = paste("WH",Warehouse)) # Convert to currency
   
-head(m[order(-m$Loading_Cost),]) %>% 
-  gt() %>%
+head(m[order(-m$Loading_Cost),]) |> 
+  gt() |>
   fmt_currency(
     columns = Loading_Cost,
     currency = "VND",
     decimals = 0,
     use_seps = TRUE
-  ) %>%
+  ) |>
   tab_header(
     title = md("**Loading Costs by weight category in each warehouses**"),
     subtitle = md("Table just contains **expected loading cost**")
-  ) %>%  
-  opt_align_table_header(align = "center") %>% 
+  ) |>  
+  opt_align_table_header(align = "center") |> 
   cols_label(
     Loading_Cost = "Loading Cost (VNĐ)",
     Weight_Category = "Weight Category",
     Has_Machine = "Has Machine",
     DC = "Distribution Center"
-  ) %>% 
+  ) |> 
   data_color(method = "numeric",
              palette = "viridis",
-             reverse = TRUE) %>% 
-  gt_theme_pff() %>% 
+             reverse = TRUE) |> 
+  gt_theme_pff() |> 
   tab_style(style = list(cell_text(align = "center")),
-            locations = cells_body(columns = everything())) %>%
+            locations = cells_body(columns = everything())) |>
   tab_style(
     style = list(
       cell_text(align = "center")
@@ -431,8 +431,8 @@ head(m[order(-m$Loading_Cost),]) %>%
     locations = list(
       cells_column_labels(everything())
     )
-  ) %>% 
-  tab_source_note(source = md("*Source: package gt in R*")) %>% 
+  ) |> 
+  tab_source_note(source = md("*Source: package gt in R*")) |> 
   tab_style(
     style = "font-weight: bold",
     locations = cells_body(Weight_Category)
@@ -469,7 +469,7 @@ Những đối số này giúp điều chỉnh thuật toán di truyền cho cá
 Ngoài ra, còn có các lưu ý cho bạn khi sử dụng R như sau:
 
 ::: callout-caution
-### Lưu ý khi dùng hàm ga():
+##### Lưu ý khi dùng hàm ga():
 
 Hàm `ga()` phải có ít nhất 2 đối số là `type` và `fitness thì R mới chạy được.`
 
@@ -527,17 +527,8 @@ ga_result <- ga(
 #| echo: false
 #| warning: false
 #| message: false
-library(leaflet)
-## Update flag of countries in each locations:
-library(readxl)
-write <- read_excel("write.xlsx")
-warehouses<-write[1:5,]
-distribution_centers<-write[6:8,]
-```
-
-```{r}
-#| warning: false
-#| message: false
+# Print the summary of the GA result
+plot(ga_result)
 # Assuming ga_result@solution contains optimal quantities
 ga_result_solution <- c(ga_result@solution)
 
@@ -560,10 +551,10 @@ real_weighted <- melt(weights)
 colnames(real_weighted) <- c("Warehouse", "DC", "Total_Weight")
 
 # Perform left join
-result <- real_weighted %>%
+result <- real_weighted |>
   left_join(loading_costs, by = c("Warehouse", "DC"))
 
-result <-result %>% 
+result <-result |> 
   mutate(Price = case_when(
     Total_Weight < 1.5 ~ "< 1.5",
     Total_Weight <2.5 ~ "1.5 to 2.5",
@@ -573,8 +564,8 @@ result <-result %>%
       is.na(Total_Weight) ~ NA_character_  # Handle NA explicitly if needed
   ))
   
-result<-result %>% 
-  filter(Weight_Category == Price) %>% 
+result<-result |> 
+  filter(Weight_Category == Price) |> 
   select(-Price)
 
 # Join with tranportation cost table:
@@ -593,7 +584,7 @@ result<-left_join(result,
 
 # Adjust:
 
-result<-result %>% 
+result<-result |> 
       mutate(Loading_Cost = Loading_Cost*1000,
              Transport_cost = Transport_cost*1000,
              DC = paste("DC",DC),
@@ -609,7 +600,131 @@ result<-result[,c("Warehouse",
                  "Transport_cost")]
 ```
 
-### Báo cáo:
+Kết quả tối ưu sẽ được trình bày ở bảng này (hơi màu mè 1 tí!!!)
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+library(gt)
+library(dplyr)
+library(scales)
+
+# Add Total_Cost column and Has_Machine_Icon
+result <- result |> 
+  mutate(
+    Total_Cost = Loading_Cost + Transport_cost,
+    Has_Machine_Icon = ifelse(Has_Machine == "Yes", "✅", "❌")
+  ) |> 
+  select(-Has_Machine)
+
+# Find the row with highest total cost
+max_total_cost <- max(result$Total_Cost, na.rm = TRUE)
+
+# Build enhanced GT table
+result |>
+  gt() |>
+  tab_header(
+    title = html("<b>📦 Warehouse Shipment Summary</b>"),
+    subtitle = md("Cost Breakdown & Machine Availability")
+  ) |>
+  fmt_currency(
+    columns = c(Loading_Cost, Transport_cost, Total_Cost),
+    currency = "USD"
+  ) |>
+  fmt_number(
+    columns = Total_Weight,
+    decimals = 2
+  ) |>
+  data_color(
+    columns = Total_Weight,
+    colors = col_numeric(
+      palette = c("lightblue", "blue"),
+      domain = NULL
+    )
+  ) |>
+  data_color(
+    columns = Loading_Cost,
+    colors = col_numeric(
+      palette = c("lightyellow", "orange"),
+      domain = NULL
+    )
+  ) |>
+  data_color(
+    columns = Transport_cost,
+    colors = col_numeric(
+      palette = c("lightpink", "deeppink"),
+      domain = NULL
+    )
+  ) |>
+  data_color(
+    columns = Total_Cost,
+    colors = col_numeric(
+      palette = c("lightgreen", "forestgreen"),
+      domain = NULL
+    )
+  ) |>
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_body(
+      columns = vars(Total_Cost),
+      rows = Total_Cost == max_total_cost
+    )
+  ) |>
+  tab_style(
+    style = cell_fill(color = "lightgray"),
+    locations = cells_body(
+      columns = vars(Has_Machine_Icon),
+      rows = Has_Machine_Icon == "✅"
+    )
+  ) |>
+  tab_style(
+    style = cell_fill(color = "#f5e1f7"),
+    locations = cells_body(
+      columns = vars(Has_Machine_Icon),
+      rows = Has_Machine_Icon == "❌"
+    )
+  ) |>
+  tab_style(
+    style = cell_fill(color = "#fdf5e6"),
+    locations = cells_body(
+      columns = vars(Weight_Category),
+      rows = Weight_Category == "Light"
+    )
+  ) |>
+  tab_style(
+    style = cell_fill(color = "#ffe4b5"),
+    locations = cells_body(
+      columns = vars(Weight_Category),
+      rows = Weight_Category == "Medium"
+    )
+  ) |>
+  tab_style(
+    style = cell_fill(color = "#ffcccb"),
+    locations = cells_body(
+      columns = vars(Weight_Category),
+      rows = Weight_Category == "Heavy"
+    )
+  ) |> 
+  cols_label(
+  Warehouse = "🏢 Warehouse",
+  DC = "🏬 Distribution Center",
+  Has_Machine_Icon = "🛠 Machine",
+  Total_Weight = "📦 Total Weight (kg)",
+  Weight_Category = "⚖️ Weight Category",
+  Loading_Cost = "💼 Loading Cost",
+  Transport_cost = "🚚 Transport Cost",
+  Total_Cost = "💰 Total Cost"
+) |>
+tab_style(
+  style = cell_text(weight = "bold"),
+  locations = cells_column_labels(columns = everything())
+) |> 
+  opt_row_striping()
+```
+
+# Báo cáo:
 
 Và cuối cùng, sau khi có kết quả, mình sẽ dùng các thư viện gồm: **Leaflet**, **gt**, và **biểu đồ Sankey** phục vụ những mục đích khác nhau cho trực quan hóa dữ liệu.
 
@@ -622,6 +737,15 @@ Và cuối cùng, sau khi có kết quả, mình sẽ dùng các thư viện g�
 Để kết nối các biểu đồ lại với nhau, ta thường nghĩ đến `Shiny` trong **R** nhưng vì chúng ta đang tạo website bằng **Quarto** nên output cuối cùng sẽ là một trang web tĩnh - *static website*. Do đó, nó sẽ không phản hồi với thông tin đầu vào của người dùng hoặc chạy bất kỳ mã R nào. Bạn có thể hình dung giống như bạn đang muốn xem biểu đồ về doanh thu trong tháng tiếp theo trên 1 biểu đồ trong Word - không thể làm được vì nó thuộc dạng văn bản, bạn chỉ đọc hoặc nhìn chứ không tương tác được.
 
 Tuy vậy, sau một thời gian tìm hiểu, mình cũng tìm được cách để nhúng **Shiny** vào R để hiển thị trên Quarto. Nguồn tài liệu bạn có thể kham khảo ở trang này [r-shinylive-demo](https://github.com/coatless-quarto/r-shinylive-demo).
+
+::: {.callout-note}
+**Shinylive** là 1 extension của Quarto và được kích hoạt bằng: 
+```yaml
+filter:
+  - quarto-ext/shinylive
+```
+các extension trong filter sẽ ảnh hưởng đến kết quả sau khi Quarto render xong. App Shiny chỉ xuất hiện sau đó, nên bạn cần đợi thêm tùy theo độ nặng của app.
+::: 
 
 :::{.column-page}
 
@@ -899,25 +1023,25 @@ server <- function(input, output, session) {
     route_colors <- c("#FF5733", "#33A8FF", "#33FF57", "#D433FF", "#FFD133")
     
     # Initialize the map
-    map <- leaflet() %>%
-      addTiles() %>%
-      addProviderTiles(providers$CartoDB.Positron) %>%
-      addMarkers(data = warehouses %>% filter(ID %in% location()), 
+    map <- leaflet() |>
+      addTiles() |>
+      addProviderTiles(providers$CartoDB.Positron) |>
+      addMarkers(data = warehouses |> filter(ID %in% location()), 
                  lat = ~Latitude, 
                  lng = ~Longitude, 
                  label = ~paste0("<strong> ID Warehouse: </strong> ", ID, "<br/> ",
                                  "<strong> Province: </strong> ", Province, "<br/> ",
                                  "<strong> District: </strong> ", District, "<br/> ",
-                                 "<strong> Address: </strong> ", Address, "<br/> ") %>% 
+                                 "<strong> Address: </strong> ", Address, "<br/> ") |> 
                    lapply(htmltools::HTML),
-                 icon = warehouse_icon) %>%
+                 icon = warehouse_icon) |>
       addMarkers(data = distribution_centers, 
                  lat = ~Latitude, 
                  lng = ~Longitude, 
                  label = ~paste0("<strong> ID Distribution Center: </strong> ", ID, "<br/> ",
                                  "<strong> Province: </strong> ", Province, "<br/> ",
                                  "<strong> District: </strong> ", District, "<br/> ",
-                                 "<strong> Address: </strong> ", Address, "<br/> ") %>% 
+                                 "<strong> Address: </strong> ", Address, "<br/> ") |> 
                    lapply(htmltools::HTML),
                  icon = dc_icon)
     
@@ -942,7 +1066,7 @@ server <- function(input, output, session) {
           weight_multiplier <- qty_data[i, j] / max(optimal_quantities) * 5
           weight <- max(2, min(6, weight_multiplier + 2))  # Scale between 2-6
           
-          map <- map %>%
+          map <- map |>
             addPolylines(
               lat = c(route_start$Latitude, route_end$Latitude),
               lng = c(route_start$Longitude, route_end$Longitude),
@@ -968,8 +1092,8 @@ server <- function(input, output, session) {
   output$cost_table <- renderDT({
     req(location())
     
-    cost_data <- result %>% 
-      filter(Warehouse %in% paste("WH", location())) %>% 
+    cost_data <- result |> 
+      filter(Warehouse %in% paste("WH", location())) |> 
       select(c(Warehouse, DC, Loading_Cost, Transport_cost))
     
     # Add a Total Cost column
@@ -995,14 +1119,14 @@ server <- function(input, output, session) {
                 )
               ),
               rownames = FALSE,
-              class = 'compact stripe hover') %>%
+              class = 'compact stripe hover') |>
       formatStyle(
         'Warehouse',
         backgroundColor = styleEqual(
           paste("WH", 1:5), 
           c('#FFC3A0', '#A0D2FF', '#C8FFB0', '#D5A0FF', '#FFF0A0')
         )
-      ) %>%
+      ) |>
       formatStyle(
         'DC',
         backgroundColor = styleEqual(
@@ -1020,7 +1144,7 @@ server <- function(input, output, session) {
   
   # Filter data based on selected warehouses
   filtered_data <- reactive({
-    result %>%
+    result |>
       filter(Warehouse %in% paste("WH",input$warehouse))
   })
 
@@ -1124,7 +1248,7 @@ server <- function(input, output, session) {
   output$summary_stats <- renderUI({
     req(location())
     
-    selected_data <- result %>% 
+    selected_data <- result |> 
       filter(Warehouse %in% paste("WH", location()))
     
     total_loading <- sum(selected_data$Loading_Cost)
@@ -1179,194 +1303,117 @@ Bạn có thể xem cho 1 hoặc nhiều nhà kho bằng cách *click* trên tha
 
 Tuy rất thích R nhưng mình vẫn không thích xây dựng dashboard bằng R lắm vì quá nặng về code và không hiệu quả về thời gian, nguồn lực. Các tools khác mình ưu tiên hơn như **Power BI**, **Tableau** hoặc các **BIs** mà công ty bạn sử dụng trong công việc hằng ngày.
 
-## Mô hình MILP:
-
-Tiếp theo ta sẽ chuyển sang thuật toán tuyến tính mới là mô hình MILP.
-
-### Giới thiệu sơ lược:
-
-**MILP (Mixed Integer Linear Programming)** là một phương pháp tối ưu hóa được sử dụng trong các bài toán lập kế hoạch, phân bổ tài nguyên, và quyết định trong các lĩnh vực như logistics, sản xuất, tài chính, và nhiều lĩnh vực khác. MILP là một phần mở rộng của lập trình tuyến tính (Linear Programming - LP), trong đó có các biến là số nguyên (integer variables) bên cạnh các biến liên tục (continuous variables).
-
-Trong đó, cấu trúc của một bài toán MILP bao gồm:
-
-1.  **Hàm mục tiêu**: Là một hàm tuyến tính mà bạn muốn tối ưu hóa (tối đa hóa hoặc tối thiểu hóa).
-
-    $$
-    \text{Maximize or Minimize } Z = c_1x_1 + c_2x_2 + \ldots + c_nx_n
-    $$
-
-2.  **Ràng buộc**: Bao gồm các điều kiện tuyến tính mà các biến phải thỏa mãn.
-
-    $$
-    a_{11}x_1 + a_{12}x_2 + \ldots + a_{1n}x_n \leq b_1
-    $$
-
-    $$
-    a_{21}x_1 + a_{22}x_2 + \ldots + a_{2n}x_n \leq b_2
-    $$
-
-    ... và nhiều ràng buộc khác.
-
-3.  **Biến quyết định**: Các biến trong bài toán có thể là:
-
-    -   Biến liên tục: Có thể nhận mọi giá trị thực (ví dụ: số lượng sản phẩm).
-    -   Biến nguyên: Chỉ nhận giá trị nguyên (ví dụ: số lượng xe tải).
-    -   Biến nhị phân: Chỉ nhận giá trị 0 hoặc 1 (ví dụ: có hoặc không sử dụng một nhà máy).
-
-Mô hình **MILP** là một công cụ mạnh mẽ cho việc tối ưu hóa trong nhiều lĩnh vực khác nhau. Với khả năng kết hợp giữa các biến liên tục và số nguyên, MILP có thể giải quyết nhiều bài toán phức tạp mà các phương pháp tối ưu hóa khác không thể thực hiện hiệu quả. Các ứng dụng phổ biến bao gồm:
-
--   **Quản lý chuỗi cung ứng**: Tối ưu hóa việc phân phối hàng hóa từ các kho đến các khách hàng.
--   **Lập kế hoạch sản xuất**: Xác định số lượng sản phẩm cần sản xuất để tối đa hóa lợi nhuận hoặc giảm chi phí.
--   **Tối ưu hóa lịch trình**: Lập lịch cho nhân viên, máy móc, hoặc tài nguyên để tối ưu hóa hiệu suất.
--   **Quy hoạch đô thị**: Tối ưu hóa việc sử dụng đất và tài nguyên trong quy hoạch thành phố.
-
-Trong R có các thư viện như `lpSolve`, `ompr`, và `ROI` có thể được sử dụng để giải quyết các bài toán MILP.
-
-### Ví dụ về mô hình MILP:
-
-Gỉa sử ta có bài toán về vấn đề **Transshipment** có yêu cầu là tìm ra phương án vận tải tối ưu nhất để vận chuyển hàng hóa từ nhà máy (**Factory**) thông qua **Crossdocking** và đến được **Distribution Center** với mục tiêu là đạt **chi phí thấp nhất**.
 
 ```{=html}
-<div style="text-align: center; margin-bottom: 20px;">
-  <img src="img/transshipment.png" style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
-  
-  <!-- Picture Name -->
-  <div style="text-align: left; margin-top: 10px;">
-    Hình 5: Vấn đề Transshipment
-  </div>
-  
-  <!-- Source Link -->
-  <div style="text-align: right; font-style: italic; margin-top: 5px;">
-    Source: <a href="https://posit.co/download/rstudio-desktop/">Rstudio</a>
-  </div>
-</div>
-```
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go to Next Page</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Tahoma', sans-serif;
+            display: flex;
+            flex-direction: column;  /* Stack content and footnote vertically */
+            justify-content: center;  /* Center content vertically */
+            align-items: center;      /* Center content horizontally */
+            margin: 0;
+            background-color: $secondary-color;
+            box-sizing: border-box;
+            min-height: 80vh; /* Adjusted to 80vh to ensure it's not too high */
+        }
 
-Vì bài toán này thuộc dạng tuyến tính nên phương pháp MILP sẽ làm tốt hơn nhiều so với thuật toán GA bên trên. Kết quả được trình bày bên dưới đây
+        /* Container Styling (Main Content) */
+        .container {
+            text-align: center;
+            padding: 20px 40px; /* Adjust padding for more compactness */
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            width: auto;  /* Auto width to fit content */
+            max-width: 380px;  /* Adjusted max-width for a smaller container */
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin-top: 20px;  /* Space from the top of the page */
+        }
 
-```{r}
-#| warning: false
-#| message: false
-#| output: false
-#| fig-cap: "Biểu đồ 4: Kết quả từ mô hình MILP"
-library(ompr)
-library(ompr.roi)
-library(ROI.plugin.glpk)
-#Input:
-Supply <-c(200,300,100,150,220)
-Demand <-c(150,100,110,200,180)
-DC<-2
-m<-length(Supply)
-n<-length(Demand)
+        /* Link Styling */
+        .link {
+            font-size: 20px;  /* Adjusted font size for readability */
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 12px 30px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
 
-Cost_CD<-read.table(text = 
-                    "CD1 CD2
-                     30 50
-                     23 66
-                     35 14
-                     70 12
-                     65 70",header = T)
-Cost_DC<-read.table(text = 
-                      "DC1 DC2 DC3 DC4 DC5
-                       12 25 22 40 41
-                       65 22 23 12 15",header = T)
+        .link:hover {
+            color: #0056b3;
+            text-decoration: none;
+            background-color: #e6f0ff;
+        }
 
-#MILP model from the 
-model5 <- MIPModel() %>%
-  # Add variable
-  add_variable(x[i, j], i = 1:m, j = 1:DC) %>%
-  add_variable(y[j, k], j = 1:DC, k = 1:n) %>%
-  # minimize the cost of transshipment:
-  set_objective(sum_expr(x[i, j]*Cost_CD[i, j],i = 1:m, j = 1:DC)+ sum_expr(y[j, k]*Cost_DC[j, k], k = 1:n, j = 1:DC),"min") %>%
-  add_constraint(sum_expr(y[j, k], j = 1:DC) >= Demand[k], k = 1:n) %>%
-  # The amount of inventory in Crossdocking is smaller than production goods
-  add_constraint(sum_expr(x[i, j], j = 1:DC) <= Supply[i], i = 1:m) %>% 
-  # The amount of is bigger than demand in DC
-  add_constraint(sum_expr(x[i, j], i = 1:m) - sum_expr(y[j, k], k = 1:n) >= 0,j = 1:DC) %>%
-  add_constraint(x[i, j] >= 0, j = 1:DC, i = 1:m)%>% 
-  add_constraint(y[j, k] >= 0, j = 1:DC, k = 1:n)%>% 
-  #Solve the model:
-  solve_model(with_ROI(solver = "glpk", verbose = TRUE))
-```
+        /* Arrow Styling */
+        .arrow {
+            margin-left: 12px;
+            font-size: 24px;
+            transition: transform 0.3s ease, font-size 0.3s ease;
+        }
 
-```{r}
-#| layout: [[50,50]]
-#| warning: false
-#| message: false
-#| echo: false
+        .link:hover .arrow {
+            transform: translateX(8px);
+            font-size: 26px;
+        }
 
-## Table:
-solution <- get_solution(model5, x[i, j]) %>% 
-     filter(value > 0)
+        /* Focus State for Accessibility */
+        .link:focus {
+            outline: 2px solid #0056b3;
+        }
 
-library(gt)
-library(dplyr)
-library(scales)  
+        /* Footer Styling (Footnote) */
+        .footer {
+            font-size: 14px;
+            color: #777;
+            margin-top: 20px;  /* Space between content and footnote */
+            text-align: center;
+            width: 100%;
+        }
 
-# Assuming `solution` contains the results of x[i, j]
-# Transform the solution into a tidy format for the table
-table_data <- solution %>%
-  rename(Manufacturer = i, DC = j, Flow = value) %>%
-  mutate(Manufacturer = paste("Manufacturer", Manufacturer),
-         DC = paste("DC", DC)) %>% 
-  select(-variable)
+        /* Mobile-Friendly Adjustments */
+        @media (max-width: 600px) {
+            .link {
+                font-size: 18px;
+                padding: 8px 15px;  /* Smaller padding for mobile devices */
+            }
 
-# Create a gt table
-table_data %>%
-  gt() %>%
-  tab_header(
-    title = md("**Transshipment flows from Manufacturers to Distribution Centers**")
-  ) %>%
-  cols_label(
-    Manufacturer = md("**Manufacturer**"),
-    DC = md("**Distribution Center**"),
-    Flow = md("**Flow Amount**")) %>%
-  fmt_number(
-    columns = c(Flow),
-    decimals = 2
-  ) %>%
-  data_color(
-    columns = c(Flow),  # Use c() instead of vars()
-    colors = scales::col_numeric(palette = c("#2ca02c","#ff7f0e"), domain = NULL)
-  ) %>%
-  cols_align(
-    align = "center",
-    columns = everything()  # Applies to all columns
-  ) %>%
-  tab_options(
-    table.width = pct(100)
-  ) %>% 
-  gt_theme_espn()
+            .arrow {
+                font-size: 18px;
+                margin-left: 8px;
+            }
 
-## Barchart:
-
-library(ggplot2)
-plot_data <- solution %>%
-  rename(Manufacter= i, DC = j, Flow = value) %>%
-  mutate(Manufacter = paste("Manufacter", Manufacter),
-         DC = paste("DC", DC))
-
-# Create a plot
-ggplot(plot_data, aes(x = Manufacter, y = Flow, fill = DC)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  theme_minimal() +
-  labs(title = "",
-       x = "Manufacters",
-       y = "Flow Amount",
-       fill = "Distribution Centers") +
-  theme(text = element_text(size = 12),
-        axis.text.x = element_text(angle = 45, hjust = 1)) +
-  scale_fill_brewer(palette = "Set2")
-```
-
-Như vậy, chúng ta đã được học về thuật toán Genetic và mô hình MILP cũng như cách thực hiện trong Rstudio.
-
-Nếu bạn có câu hỏi hay thắc mắc nào, đừng ngần ngại liên hệ với mình qua Gmail. Bên cạnh đó, nếu bạn muốn xem lại các bài viết trước đây của mình, hãy nhấn vào hai nút dưới đây để truy cập trang **Rpubs** hoặc mã nguồn trên **Github**. Rất vui được đồng hành cùng bạn, hẹn gặp lại! 😄😄😄
-
-
-```{r}
-#| echo: false
-#| message: false
-#| warning: false
-htmltools::includeHTML("message.html")
+            .container {
+                padding: 15px 30px;  /* Smaller padding on mobile */
+                max-width: 90%;  /* Ensure container fits better on small screens */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="https://loccx78vn.github.io/genetic-algorithm-method/MILP.html" class="link" tabindex="0">
+            Go to Next Page
+            <span class="arrow">➔</span>
+        </a>
+    </div>
+</body>
+</html>
 ```

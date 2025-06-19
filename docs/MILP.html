@@ -1,0 +1,1909 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.31">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="Đây là bài viết của tôi về cách sử dụng R trong ứng dụng Genetic Algorithm trong Supply Chain">
+
+<title>MILP model in R – Cao Xuân Lộc</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-17f353342b47b0021f2114b007a947a2.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-dc6a4911c1f8cf9cbeadb5f542715996.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<!-- toc-filter.html -->
+
+<script>
+
+  document.addEventListener('DOMContentLoaded', function () {
+
+    const sidebar = document.querySelector('.sidebar nav[role="doc-toc"]');
+
+    if (!sidebar) return;
+
+
+
+    // Create and insert search input
+
+    const input = document.createElement('input');
+
+    input.type = 'text';
+
+    input.id = 'toc-search';
+
+    input.placeholder = 'Search...';
+
+    input.classList.add('toc-search'); // for styling
+
+    sidebar.prepend(input);
+
+
+
+    // Select all TOC links and list items, all nested levels
+
+    const allLinks = sidebar.querySelectorAll('ul li a');
+
+    const allItems = sidebar.querySelectorAll('ul li');
+
+
+
+    input.addEventListener('input', function () {
+
+      const query = this.value.trim().toLowerCase();
+
+
+
+      // Hide all items initially
+
+      allItems.forEach(item => {
+
+        item.dataset.searchHidden = 'true';
+
+      });
+
+
+
+      // Show matching items and all their ancestor <li>s recursively
+
+      allLinks.forEach(link => {
+
+        const text = link.textContent.toLowerCase();
+
+        if (text.includes(query)) {
+
+          let current = link.closest('li');
+
+          while (current && current.tagName === 'LI') {
+
+            current.dataset.searchHidden = 'false';
+
+            // Move up: parent <li> if nested, else null
+
+            current = current.parentElement.closest('li');
+
+          }
+
+        }
+
+      });
+
+
+
+      // Show or hide items based on dataset flag
+
+      allItems.forEach(item => {
+
+        // If search is empty, show all items
+
+        if (query === '') {
+
+          item.style.display = '';
+
+        } else {
+
+          item.style.display = (item.dataset.searchHidden === 'true') ? 'none' : '';
+
+        }
+
+      });
+
+    });
+
+  });
+
+</script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Cao Xuân Lộc</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text"><i class="fa-solid fa-house"></i> Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./GA.html"> 
+<span class="menu-text"><i class="fa-solid fa-dna"></i> Genetic Algorithm</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./MILP.html" aria-current="page"> 
+<span class="menu-text"><i class="fa-solid fa-calculator"></i> MILP model</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="https://github.com/Loccx78vn/genetic-algorithm-method"> 
+<span class="menu-text"><i class="fab fa-github"></i></span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://www.facebook.com/cao.loc.9693"> 
+<span class="menu-text"><i class="fab fa-facebook"></i></span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://rpubs.com/loccx"> 
+<span class="menu-text"><img src="https://www.r-project.org/Rlogo.png" width="20" style="margin-right:5px;"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#mô-hình-milp" id="toc-mô-hình-milp" class="nav-link active" data-scroll-target="#mô-hình-milp"><span class="header-section-number">1</span> Mô hình MILP:</a>
+  <ul class="collapse">
+  <li><a href="#giới-thiệu-sơ-lược" id="toc-giới-thiệu-sơ-lược" class="nav-link" data-scroll-target="#giới-thiệu-sơ-lược"><span class="header-section-number">1.1</span> Giới thiệu sơ lược:</a></li>
+  <li><a href="#ví-dụ-về-mô-hình-milp" id="toc-ví-dụ-về-mô-hình-milp" class="nav-link" data-scroll-target="#ví-dụ-về-mô-hình-milp"><span class="header-section-number">1.2</span> Ví dụ về mô hình MILP:</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">MILP model in R</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+<p class="subtitle lead">Việt Nam, 2024</p>
+  <div class="quarto-categories">
+    <div class="quarto-category">MILP model</div>
+    <div class="quarto-category">Logistics</div>
+    <div class="quarto-category">Optimizing Supply Chain</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Đây là bài viết của tôi về cách sử dụng R trong ứng dụng Genetic Algorithm trong Supply Chain
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="mô-hình-milp" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="mô-hình-milp"><span class="header-section-number">1</span> Mô hình MILP:</h2>
+<p>Tiếp theo ta sẽ chuyển sang thuật toán tuyến tính mới là mô hình MILP.</p>
+<section id="giới-thiệu-sơ-lược" class="level3" data-number="1.1">
+<h3 data-number="1.1" class="anchored" data-anchor-id="giới-thiệu-sơ-lược"><span class="header-section-number">1.1</span> Giới thiệu sơ lược:</h3>
+<p><strong>MILP (Mixed Integer Linear Programming)</strong> là một phương pháp tối ưu hóa được sử dụng trong các bài toán lập kế hoạch, phân bổ tài nguyên, và quyết định trong các lĩnh vực như logistics, sản xuất, tài chính, và nhiều lĩnh vực khác. MILP là một phần mở rộng của lập trình tuyến tính (Linear Programming - LP), trong đó có các biến là số nguyên (integer variables) bên cạnh các biến liên tục (continuous variables).</p>
+<p>Trong đó, cấu trúc của một bài toán MILP bao gồm:</p>
+<ol type="1">
+<li><p><strong>Hàm mục tiêu</strong>: Là một hàm tuyến tính mà bạn muốn tối ưu hóa (tối đa hóa hoặc tối thiểu hóa).</p>
+<p><span class="math display">\[
+\text{Maximize or Minimize } Z = c_1x_1 + c_2x_2 + \ldots + c_nx_n
+\]</span></p></li>
+<li><p><strong>Ràng buộc</strong>: Bao gồm các điều kiện tuyến tính mà các biến phải thỏa mãn.</p>
+<p><span class="math display">\[
+a_{11}x_1 + a_{12}x_2 + \ldots + a_{1n}x_n \leq b_1
+\]</span></p>
+<p><span class="math display">\[
+a_{21}x_1 + a_{22}x_2 + \ldots + a_{2n}x_n \leq b_2
+\]</span></p>
+<p>… và nhiều ràng buộc khác.</p></li>
+<li><p><strong>Biến quyết định</strong>: Các biến trong bài toán có thể là:</p>
+<ul>
+<li>Biến liên tục: Có thể nhận mọi giá trị thực (ví dụ: số lượng sản phẩm).</li>
+<li>Biến nguyên: Chỉ nhận giá trị nguyên (ví dụ: số lượng xe tải).</li>
+<li>Biến nhị phân: Chỉ nhận giá trị 0 hoặc 1 (ví dụ: có hoặc không sử dụng một nhà máy).</li>
+</ul></li>
+</ol>
+<p>Mô hình <strong>MILP</strong> là một công cụ mạnh mẽ cho việc tối ưu hóa trong nhiều lĩnh vực khác nhau. Với khả năng kết hợp giữa các biến liên tục và số nguyên, MILP có thể giải quyết nhiều bài toán phức tạp mà các phương pháp tối ưu hóa khác không thể thực hiện hiệu quả. Các ứng dụng phổ biến bao gồm:</p>
+<ul>
+<li><strong>Quản lý chuỗi cung ứng</strong>: Tối ưu hóa việc phân phối hàng hóa từ các kho đến các khách hàng.</li>
+<li><strong>Lập kế hoạch sản xuất</strong>: Xác định số lượng sản phẩm cần sản xuất để tối đa hóa lợi nhuận hoặc giảm chi phí.</li>
+<li><strong>Tối ưu hóa lịch trình</strong>: Lập lịch cho nhân viên, máy móc, hoặc tài nguyên để tối ưu hóa hiệu suất.</li>
+<li><strong>Quy hoạch đô thị</strong>: Tối ưu hóa việc sử dụng đất và tài nguyên trong quy hoạch thành phố.</li>
+</ul>
+<p>Trong R có các thư viện như <code>lpSolve</code>, <code>ompr</code>, và <code>ROI</code> có thể được sử dụng để giải quyết các bài toán MILP.</p>
+</section>
+<section id="ví-dụ-về-mô-hình-milp" class="level3" data-number="1.2">
+<h3 data-number="1.2" class="anchored"><span class="header-section-number">1.2</span> Ví dụ về mô hình MILP:</h3>
+<p>Gỉa sử ta có bài toán về vấn đề <strong>Transshipment</strong> có yêu cầu là tìm ra phương án vận tải tối ưu nhất để vận chuyển hàng hóa từ nhà máy (<strong>Factory</strong>) thông qua <strong>Crossdocking</strong> và đến được <strong>Distribution Center</strong> với mục tiêu là đạt <strong>chi phí thấp nhất</strong>.</p>
+<div style="text-align: center; margin-bottom: 20px;">
+  <img src="img/transshipment.png" style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
+  
+  <!-- Picture Name -->
+  <div style="text-align: left; margin-top: 10px;">
+    Hình 5: Vấn đề Transshipment
+  </div>
+  
+  <!-- Source Link -->
+  <div style="text-align: right; font-style: italic; margin-top: 5px;">
+    Source: <a href="https://posit.co/download/rstudio-desktop/">Rstudio</a>
+  </div>
+</div>
+<p>Vì bài toán này thuộc dạng tuyến tính nên phương pháp MILP sẽ làm tốt hơn nhiều so với thuật toán GA bên trên. Kết quả được trình bày bên dưới đây</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ompr)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ompr.roi)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ROI.plugin.glpk)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">#Input:</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>Supply <span class="ot">&lt;-</span><span class="fu">c</span>(<span class="dv">200</span>,<span class="dv">300</span>,<span class="dv">100</span>,<span class="dv">150</span>,<span class="dv">220</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>Demand <span class="ot">&lt;-</span><span class="fu">c</span>(<span class="dv">150</span>,<span class="dv">100</span>,<span class="dv">110</span>,<span class="dv">200</span>,<span class="dv">180</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>DC<span class="ot">&lt;-</span><span class="dv">2</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>m<span class="ot">&lt;-</span><span class="fu">length</span>(Supply)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>n<span class="ot">&lt;-</span><span class="fu">length</span>(Demand)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>Cost_CD<span class="ot">&lt;-</span><span class="fu">read.table</span>(<span class="at">text =</span> </span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"CD1 CD2</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="st">                     30 50</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="st">                     23 66</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="st">                     35 14</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="st">                     70 12</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="st">                     65 70"</span>,<span class="at">header =</span> T)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>Cost_DC<span class="ot">&lt;-</span><span class="fu">read.table</span>(<span class="at">text =</span> </span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>                      <span class="st">"DC1 DC2 DC3 DC4 DC5</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="st">                       12 25 22 40 41</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="st">                       65 22 23 12 15"</span>,<span class="at">header =</span> T)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co">#MILP model from the </span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>model5 <span class="ot">&lt;-</span> <span class="fu">MIPModel</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Add variable</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_variable</span>(x[i, j], <span class="at">i =</span> <span class="dv">1</span><span class="sc">:</span>m, <span class="at">j =</span> <span class="dv">1</span><span class="sc">:</span>DC) <span class="sc">%&gt;%</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_variable</span>(y[j, k], <span class="at">j =</span> <span class="dv">1</span><span class="sc">:</span>DC, <span class="at">k =</span> <span class="dv">1</span><span class="sc">:</span>n) <span class="sc">%&gt;%</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="co"># minimize the cost of transshipment:</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_objective</span>(<span class="fu">sum_expr</span>(x[i, j]<span class="sc">*</span>Cost_CD[i, j],<span class="at">i =</span> <span class="dv">1</span><span class="sc">:</span>m, <span class="at">j =</span> <span class="dv">1</span><span class="sc">:</span>DC)<span class="sc">+</span> <span class="fu">sum_expr</span>(y[j, k]<span class="sc">*</span>Cost_DC[j, k], <span class="at">k =</span> <span class="dv">1</span><span class="sc">:</span>n, <span class="at">j =</span> <span class="dv">1</span><span class="sc">:</span>DC),<span class="st">"min"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_constraint</span>(<span class="fu">sum_expr</span>(y[j, k], <span class="at">j =</span> <span class="dv">1</span><span class="sc">:</span>DC) <span class="sc">&gt;=</span> Demand[k], <span class="at">k =</span> <span class="dv">1</span><span class="sc">:</span>n) <span class="sc">%&gt;%</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  <span class="co"># The amount of inventory in Crossdocking is smaller than production goods</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_constraint</span>(<span class="fu">sum_expr</span>(x[i, j], <span class="at">j =</span> <span class="dv">1</span><span class="sc">:</span>DC) <span class="sc">&lt;=</span> Supply[i], <span class="at">i =</span> <span class="dv">1</span><span class="sc">:</span>m) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  <span class="co"># The amount of is bigger than demand in DC</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_constraint</span>(<span class="fu">sum_expr</span>(x[i, j], <span class="at">i =</span> <span class="dv">1</span><span class="sc">:</span>m) <span class="sc">-</span> <span class="fu">sum_expr</span>(y[j, k], <span class="at">k =</span> <span class="dv">1</span><span class="sc">:</span>n) <span class="sc">&gt;=</span> <span class="dv">0</span>,<span class="at">j =</span> <span class="dv">1</span><span class="sc">:</span>DC) <span class="sc">%&gt;%</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_constraint</span>(x[i, j] <span class="sc">&gt;=</span> <span class="dv">0</span>, <span class="at">j =</span> <span class="dv">1</span><span class="sc">:</span>DC, <span class="at">i =</span> <span class="dv">1</span><span class="sc">:</span>m)<span class="sc">%&gt;%</span> </span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_constraint</span>(y[j, k] <span class="sc">&gt;=</span> <span class="dv">0</span>, <span class="at">j =</span> <span class="dv">1</span><span class="sc">:</span>DC, <span class="at">k =</span> <span class="dv">1</span><span class="sc">:</span>n)<span class="sc">%&gt;%</span> </span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>  <span class="co">#Solve the model:</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">solve_model</span>(<span class="fu">with_ROI</span>(<span class="at">solver =</span> <span class="st">"glpk"</span>, <span class="at">verbose =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell quarto-layout-panel" data-layout="[[50,50]]">
+<div class="quarto-layout-row">
+<div id="pyuhqficef" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>@import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+#pyuhqficef table {
+  font-family: Lato, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#pyuhqficef thead, #pyuhqficef tbody, #pyuhqficef tfoot, #pyuhqficef tr, #pyuhqficef td, #pyuhqficef th {
+  border-style: none;
+}
+
+#pyuhqficef p {
+  margin: 0;
+  padding: 0;
+}
+
+#pyuhqficef .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: 100%;
+  border-top-style: solid;
+  border-top-width: 3px;
+  border-top-color: #FFFFFF;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#pyuhqficef .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#pyuhqficef .gt_title {
+  color: #333333;
+  font-size: 24px;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#pyuhqficef .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#pyuhqficef .gt_heading {
+  background-color: #FFFFFF;
+  text-align: left;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#pyuhqficef .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#pyuhqficef .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#pyuhqficef .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#pyuhqficef .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#pyuhqficef .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#pyuhqficef .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#pyuhqficef .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#pyuhqficef .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#pyuhqficef .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#pyuhqficef .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#pyuhqficef .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#pyuhqficef .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#pyuhqficef .gt_row {
+  padding-top: 7px;
+  padding-bottom: 7px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #F6F7F7;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#pyuhqficef .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#pyuhqficef .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#pyuhqficef .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#pyuhqficef .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#pyuhqficef .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#pyuhqficef .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#pyuhqficef .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#pyuhqficef .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#pyuhqficef .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#pyuhqficef .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#pyuhqficef .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#pyuhqficef .gt_striped {
+  background-color: #FAFAFA;
+}
+
+#pyuhqficef .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#pyuhqficef .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#pyuhqficef .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#pyuhqficef .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#pyuhqficef .gt_sourcenote {
+  font-size: 12px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#pyuhqficef .gt_left {
+  text-align: left;
+}
+
+#pyuhqficef .gt_center {
+  text-align: center;
+}
+
+#pyuhqficef .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#pyuhqficef .gt_font_normal {
+  font-weight: normal;
+}
+
+#pyuhqficef .gt_font_bold {
+  font-weight: bold;
+}
+
+#pyuhqficef .gt_font_italic {
+  font-style: italic;
+}
+
+#pyuhqficef .gt_super {
+  font-size: 65%;
+}
+
+#pyuhqficef .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#pyuhqficef .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#pyuhqficef .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#pyuhqficef .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#pyuhqficef .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#pyuhqficef .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#pyuhqficef .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#pyuhqficef .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#pyuhqficef div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_heading header">
+<th colspan="3" class="gt_heading gt_title gt_font_normal gt_bottom_border" style="text-align: left;"><strong>Transshipment flows from Manufacturers to Distribution Centers</strong></th>
+</tr>
+<tr class="gt_col_headings even">
+<th id="Manufacturer" class="gt_col_heading gt_columns_bottom_border gt_center" style="text-align: left;" data-quarto-table-cell-role="th" scope="col"><strong>Manufacturer</strong></th>
+<th id="DC" class="gt_col_heading gt_columns_bottom_border gt_center" style="text-align: left;" data-quarto-table-cell-role="th" scope="col"><strong>Distribution Center</strong></th>
+<th id="Flow" class="gt_col_heading gt_columns_bottom_border gt_center" style="text-align: left;" data-quarto-table-cell-role="th" scope="col"><strong>Flow Amount</strong></th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_center" style="text-align: left;" headers="Manufacturer">Manufacturer 1</td>
+<td class="gt_row gt_center" style="text-align: left;" headers="DC">DC 1</td>
+<td class="gt_row gt_center" headers="Flow" style="text-align: left; background-color: #2CA02C; color: #FFFFFF;">60.00</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_center gt_striped" style="text-align: left;" headers="Manufacturer">Manufacturer 2</td>
+<td class="gt_row gt_center gt_striped" style="text-align: left;" headers="DC">DC 1</td>
+<td class="gt_row gt_center gt_striped" headers="Flow" style="text-align: left; background-color: #FF7F0E; color: #000000;">300.00</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_center" style="text-align: left;" headers="Manufacturer">Manufacturer 1</td>
+<td class="gt_row gt_center" style="text-align: left;" headers="DC">DC 2</td>
+<td class="gt_row gt_center" headers="Flow" style="text-align: left; background-color: #829C24; color: #FFFFFF;">130.00</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_center gt_striped" style="text-align: left;" headers="Manufacturer">Manufacturer 3</td>
+<td class="gt_row gt_center gt_striped" style="text-align: left;" headers="DC">DC 2</td>
+<td class="gt_row gt_center gt_striped" headers="Flow" style="text-align: left; background-color: #659E28; color: #FFFFFF;">100.00</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_center" style="text-align: left;" headers="Manufacturer">Manufacturer 4</td>
+<td class="gt_row gt_center" style="text-align: left;" headers="DC">DC 2</td>
+<td class="gt_row gt_center" headers="Flow" style="text-align: left; background-color: #939A22; color: #FFFFFF;">150.00</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="MILP_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</div>
+<p>Như vậy, chúng ta đã được học về thuật toán Genetic và mô hình MILP cũng như cách thực hiện trong Rstudio.</p>
+<p>Nếu bạn có câu hỏi hay thắc mắc nào, đừng ngần ngại liên hệ với mình qua Gmail. Bên cạnh đó, nếu bạn muốn xem lại các bài viết trước đây của mình, hãy nhấn vào hai nút dưới đây để truy cập trang <strong>Rpubs</strong> hoặc mã nguồn trên <strong>Github</strong>. Rất vui được đồng hành cùng bạn, hẹn gặp lại! 😄😄😄</p>
+<div class="cell">
+<div class="cell-output-display no-overflow-x">
+
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Me</title>
+  
+  <!-- External dependencies -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    .contact-card-wrapper {
+      --primary-color: #4361ee;
+      --github-color: #333;
+      --rpubs-color: #276DC3;
+      --card-bg: #ffffff;
+      --bg-color: #f5f7fa;
+      --border-radius: 8px;
+      --transition: 0.3s ease;
+      padding: 1rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .contact-card-wrapper .contact-card {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+      max-width: 550px;
+      width: 100%;
+    }
+
+    .contact-card-wrapper .contact-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .contact-card-wrapper .form-control:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+    }
+
+    .contact-card-wrapper .btn-submit {
+      background-color: var(--primary-color);
+      border: none;
+      font-weight: 500;
+      color: white;
+    }
+
+    .contact-card-wrapper .btn-submit:hover {
+      background-color: #3251d8;
+    }
+
+    .contact-card-wrapper .btn-github {
+      background-color: var(--github-color);
+      color: white;
+      border: none;
+    }
+
+    .contact-card-wrapper .btn-github:hover {
+      background-color: #444;
+    }
+
+    .contact-card-wrapper .btn-rpubs {
+      background-color: var(--rpubs-color);
+      color: white;
+      border: none;
+    }
+
+    .contact-card-wrapper .btn-rpubs:hover {
+      background-color: #1f5ab0;
+    }
+
+    .contact-card-wrapper .btn-linkedin {
+      background-color: #0077B5;
+      color: white;
+      border: none;
+    }
+
+    .contact-card-wrapper .btn-linkedin:hover {
+      background-color: #006295;
+    }
+
+    .contact-card-wrapper .avatar-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 15px;
+    }
+
+    .contact-card-wrapper .avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--primary-color);
+    }
+
+    .contact-card-wrapper .form-group {
+      margin-bottom: 12px;
+    }
+
+    .contact-card-wrapper .avatar-section,
+    .contact-card-wrapper .social-section,
+    .contact-card-wrapper .form-section {
+      padding: 20px;
+      text-align: center;
+    }
+
+    .contact-card-wrapper .social-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .contact-card-wrapper .social-btn {
+      flex: 1;
+      min-width: 100px;
+      max-width: 150px;
+    }
+
+    .contact-card-wrapper .textarea-message {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .contact-card-wrapper .alert {
+      border-radius: 8px;
+    }
+
+    @media (max-width: 576px) {
+      .contact-card-wrapper .social-buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
+
+
+
+  <div class="contact-card-wrapper">
+    <div class="contact-card">
+      <!-- Avatar Section -->
+      <div class="avatar-section">
+        <div class="avatar-container">
+          <img src="https://avatars.githubusercontent.com/u/583231?v=4" class="avatar" alt="Profile Avatar">
+        </div>
+        <h2 class="mb-1 text-center anchored" data-anchor-id="ví-dụ-về-mô-hình-milp">Contact Me</h2>
+      </div>
+
+      <!-- Social Buttons -->
+      <div class="social-section">
+        <div class="social-buttons">
+          <button type="button" id="githubBtn" class="btn btn-github btn-lg social-btn">
+            <i class="fab fa-github"></i> GitHub
+          </button>
+          <button type="button" id="rpubsBtn" class="btn btn-rpubs btn-lg social-btn">
+            <i class="fab fa-r-project"></i> RPubs
+          </button>
+          <button type="button" id="linkedinBtn" class="btn btn-linkedin btn-lg social-btn">
+            <i class="fab fa-linkedin"></i> LinkedIn
+          </button>
+        </div>
+      </div>
+
+      <!-- Form Section -->
+      <div class="form-section">
+        <form id="contactForm">
+          <div class="form-group text-start">
+            <label for="name">Your Name</label>
+            <input type="text" class="form-control" id="name" placeholder="John Doe">
+          </div>
+
+          <div class="form-group text-start">
+            <label for="email">Your Email</label>
+            <input type="email" class="form-control" id="email" placeholder="you@example.com">
+          </div>
+
+          <div class="form-group text-start">
+            <label for="subject">Subject</label>
+            <select class="form-control" id="subject">
+              <option>General Inquiry</option>
+              <option>Collaboration</option>
+              <option>Project Help</option>
+              <option>Other</option>
+            </select>
+          </div>
+
+          <div class="form-group text-start">
+            <label for="message">Message</label>
+            <textarea class="form-control textarea-message" id="message" rows="4" placeholder="How can I help you?"></textarea>
+          </div>
+
+          <div id="status"></div>
+
+          <div class="d-grid mt-3">
+            <button type="button" id="submitBtn" class="btn btn-submit btn-lg">
+              <i class="fas fa-paper-plane"></i> Send Message
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const contactForm = document.getElementById('contactForm');
+      const submitBtn = document.getElementById('submitBtn');
+      const statusDiv = document.getElementById('status');
+
+      function validateEmail(email) {
+        const regex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+        return regex.test(email);
+      }
+
+      submitBtn.addEventListener('click', function () {
+        statusDiv.innerHTML = '';
+
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const message = document.getElementById('message').value;
+
+        if (!name) {
+          statusDiv.innerHTML = '<div class="alert alert-danger">Please enter your name</div>';
+          return;
+        }
+
+        if (!email || !validateEmail(email)) {
+          statusDiv.innerHTML = '<div class="alert alert-danger">Please enter a valid email address</div>';
+          return;
+        }
+
+        if (!message) {
+          statusDiv.innerHTML = '<div class="alert alert-danger">Please enter a message</div>';
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+        setTimeout(() => {
+          statusDiv.innerHTML = '<div class="alert alert-success">Message sent successfully!</div>';
+          contactForm.reset();
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Message';
+        }, 1000);
+      });
+
+      document.getElementById('githubBtn').addEventListener('click', () => {
+        window.open('https://github.com/Loccx78vn', '_blank');
+      });
+
+            document.getElementById('rpubsBtn').addEventListener('click', () => {
+        window.open('https://rpubs.com/loccx', '_blank');
+      });
+
+      document.getElementById('linkedinBtn').addEventListener('click', () => {
+        window.open('https://www.linkedin.com/', '_blank');
+      });
+    });
+  </script>
+
+
+
+</div>
+</div>
+
+
+<!-- -->
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb2" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "MILP model in R"</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Việt Nam, 2024"</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span><span class="co"> ["MILP model", "Logistics","Optimizing Supply Chain"]</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="an">description:</span><span class="co"> "Đây là bài viết của tôi về cách sử dụng R trong ứng dụng Genetic Algorithm trong Supply Chain"</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="an">number-sections:</span><span class="co"> true</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span><span class="co"> </span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="an">crossref:</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">  labels: alpha a        </span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co">  subref-labels: roman</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="an">bibliography:</span><span class="co"> references.bib</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="co">#Call packages</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(rio,</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>               here,</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>               janitor,</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>               tidyverse,</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>               dplyr,</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>               magrittr,</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>               ggplot2,</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>               gt,</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>               gtExtras)</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a><span class="fu">## Mô hình MILP:</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>Tiếp theo ta sẽ chuyển sang thuật toán tuyến tính mới là mô hình MILP.</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a><span class="fu">### Giới thiệu sơ lược:</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>**MILP (Mixed Integer Linear Programming)** là một phương pháp tối ưu hóa được sử dụng trong các bài toán lập kế hoạch, phân bổ tài nguyên, và quyết định trong các lĩnh vực như logistics, sản xuất, tài chính, và nhiều lĩnh vực khác. MILP là một phần mở rộng của lập trình tuyến tính (Linear Programming - LP), trong đó có các biến là số nguyên (integer variables) bên cạnh các biến liên tục (continuous variables).</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>Trong đó, cấu trúc của một bài toán MILP bao gồm:</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>**Hàm mục tiêu**: Là một hàm tuyến tính mà bạn muốn tối ưu hóa (tối đa hóa hoặc tối thiểu hóa).</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>    $$</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>    \text{Maximize or Minimize } Z = c_1x_1 + c_2x_2 + \ldots + c_nx_n</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>    $$</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>**Ràng buộc**: Bao gồm các điều kiện tuyến tính mà các biến phải thỏa mãn.</span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>    $$</span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>    a_{11}x_1 + a_{12}x_2 + \ldots + a_{1n}x_n \leq b_1</span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>    $$</span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>    $$</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>    a_{21}x_1 + a_{22}x_2 + \ldots + a_{2n}x_n \leq b_2</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>    $$</span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>    ... và nhiều ràng buộc khác.</span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>**Biến quyết định**: Các biến trong bài toán có thể là:</span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span>Biến liên tục: Có thể nhận mọi giá trị thực (ví dụ: số lượng sản phẩm).</span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span>Biến nguyên: Chỉ nhận giá trị nguyên (ví dụ: số lượng xe tải).</span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span>Biến nhị phân: Chỉ nhận giá trị 0 hoặc 1 (ví dụ: có hoặc không sử dụng một nhà máy).</span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>Mô hình **MILP** là một công cụ mạnh mẽ cho việc tối ưu hóa trong nhiều lĩnh vực khác nhau. Với khả năng kết hợp giữa các biến liên tục và số nguyên, MILP có thể giải quyết nhiều bài toán phức tạp mà các phương pháp tối ưu hóa khác không thể thực hiện hiệu quả. Các ứng dụng phổ biến bao gồm:</span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Quản lý chuỗi cung ứng**: Tối ưu hóa việc phân phối hàng hóa từ các kho đến các khách hàng.</span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Lập kế hoạch sản xuất**: Xác định số lượng sản phẩm cần sản xuất để tối đa hóa lợi nhuận hoặc giảm chi phí.</span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Tối ưu hóa lịch trình**: Lập lịch cho nhân viên, máy móc, hoặc tài nguyên để tối ưu hóa hiệu suất.</span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Quy hoạch đô thị**: Tối ưu hóa việc sử dụng đất và tài nguyên trong quy hoạch thành phố.</span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>Trong R có các thư viện như <span class="in">`lpSolve`</span>, <span class="in">`ompr`</span>, và <span class="in">`ROI`</span> có thể được sử dụng để giải quyết các bài toán MILP.</span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a><span class="fu">### Ví dụ về mô hình MILP:</span></span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>Gỉa sử ta có bài toán về vấn đề **Transshipment** có yêu cầu là tìm ra phương án vận tải tối ưu nhất để vận chuyển hàng hóa từ nhà máy (**Factory**) thông qua **Crossdocking** và đến được **Distribution Center** với mục tiêu là đạt **chi phí thấp nhất**.</span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a><span class="in">```{=html}</span></span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;div style="text-align: center; margin-bottom: 20px;"&gt;</span></span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a><span class="in">  &lt;img src="img/transshipment.png" style="max-width: 100%; height: auto; display: block; margin: 0 auto;"&gt;</span></span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a><span class="in">  &lt;!-- Picture Name --&gt;</span></span>
+<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a><span class="in">  &lt;div style="text-align: left; margin-top: 10px;"&gt;</span></span>
+<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a><span class="in">    Hình 5: Vấn đề Transshipment</span></span>
+<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a><span class="in">  &lt;/div&gt;</span></span>
+<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a><span class="in">  </span></span>
+<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a><span class="in">  &lt;!-- Source Link --&gt;</span></span>
+<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a><span class="in">  &lt;div style="text-align: right; font-style: italic; margin-top: 5px;"&gt;</span></span>
+<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a><span class="in">    Source: &lt;a href="https://posit.co/download/rstudio-desktop/"&gt;Rstudio&lt;/a&gt;</span></span>
+<span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a><span class="in">  &lt;/div&gt;</span></span>
+<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;/div&gt;</span></span>
+<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a>Vì bài toán này thuộc dạng tuyến tính nên phương pháp MILP sẽ làm tốt hơn nhiều so với thuật toán GA bên trên. Kết quả được trình bày bên dưới đây</span>
+<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb2-105"><a href="#cb2-105" aria-hidden="true" tabindex="-1"></a><span class="co">#| output: false</span></span>
+<span id="cb2-106"><a href="#cb2-106" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Biểu đồ 4: Kết quả từ mô hình MILP"</span></span>
+<span id="cb2-107"><a href="#cb2-107" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ompr)</span>
+<span id="cb2-108"><a href="#cb2-108" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ompr.roi)</span>
+<span id="cb2-109"><a href="#cb2-109" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ROI.plugin.glpk)</span>
+<span id="cb2-110"><a href="#cb2-110" aria-hidden="true" tabindex="-1"></a><span class="co">#Input:</span></span>
+<span id="cb2-111"><a href="#cb2-111" aria-hidden="true" tabindex="-1"></a>Supply <span class="ot">&lt;-</span><span class="fu">c</span>(<span class="dv">200</span>,<span class="dv">300</span>,<span class="dv">100</span>,<span class="dv">150</span>,<span class="dv">220</span>)</span>
+<span id="cb2-112"><a href="#cb2-112" aria-hidden="true" tabindex="-1"></a>Demand <span class="ot">&lt;-</span><span class="fu">c</span>(<span class="dv">150</span>,<span class="dv">100</span>,<span class="dv">110</span>,<span class="dv">200</span>,<span class="dv">180</span>)</span>
+<span id="cb2-113"><a href="#cb2-113" aria-hidden="true" tabindex="-1"></a>DC<span class="ot">&lt;-</span><span class="dv">2</span></span>
+<span id="cb2-114"><a href="#cb2-114" aria-hidden="true" tabindex="-1"></a>m<span class="ot">&lt;-</span><span class="fu">length</span>(Supply)</span>
+<span id="cb2-115"><a href="#cb2-115" aria-hidden="true" tabindex="-1"></a>n<span class="ot">&lt;-</span><span class="fu">length</span>(Demand)</span>
+<span id="cb2-116"><a href="#cb2-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-117"><a href="#cb2-117" aria-hidden="true" tabindex="-1"></a>Cost_CD<span class="ot">&lt;-</span><span class="fu">read.table</span>(<span class="at">text =</span> </span>
+<span id="cb2-118"><a href="#cb2-118" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"CD1 CD2</span></span>
+<span id="cb2-119"><a href="#cb2-119" aria-hidden="true" tabindex="-1"></a><span class="st">                     30 50</span></span>
+<span id="cb2-120"><a href="#cb2-120" aria-hidden="true" tabindex="-1"></a><span class="st">                     23 66</span></span>
+<span id="cb2-121"><a href="#cb2-121" aria-hidden="true" tabindex="-1"></a><span class="st">                     35 14</span></span>
+<span id="cb2-122"><a href="#cb2-122" aria-hidden="true" tabindex="-1"></a><span class="st">                     70 12</span></span>
+<span id="cb2-123"><a href="#cb2-123" aria-hidden="true" tabindex="-1"></a><span class="st">                     65 70"</span>,<span class="at">header =</span> T)</span>
+<span id="cb2-124"><a href="#cb2-124" aria-hidden="true" tabindex="-1"></a>Cost_DC<span class="ot">&lt;-</span><span class="fu">read.table</span>(<span class="at">text =</span> </span>
+<span id="cb2-125"><a href="#cb2-125" aria-hidden="true" tabindex="-1"></a>                      <span class="st">"DC1 DC2 DC3 DC4 DC5</span></span>
+<span id="cb2-126"><a href="#cb2-126" aria-hidden="true" tabindex="-1"></a><span class="st">                       12 25 22 40 41</span></span>
+<span id="cb2-127"><a href="#cb2-127" aria-hidden="true" tabindex="-1"></a><span class="st">                       65 22 23 12 15"</span>,<span class="at">header =</span> T)</span>
+<span id="cb2-128"><a href="#cb2-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-129"><a href="#cb2-129" aria-hidden="true" tabindex="-1"></a><span class="co">#MILP model from the </span></span>
+<span id="cb2-130"><a href="#cb2-130" aria-hidden="true" tabindex="-1"></a>model5 <span class="ot">&lt;-</span> <span class="fu">MIPModel</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb2-131"><a href="#cb2-131" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Add variable</span></span>
+<span id="cb2-132"><a href="#cb2-132" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_variable</span>(x[i, j], <span class="at">i =</span> <span class="dv">1</span><span class="sc">:</span>m, <span class="at">j =</span> <span class="dv">1</span><span class="sc">:</span>DC) <span class="sc">%&gt;%</span></span>
+<span id="cb2-133"><a href="#cb2-133" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_variable</span>(y[j, k], <span class="at">j =</span> <span class="dv">1</span><span class="sc">:</span>DC, <span class="at">k =</span> <span class="dv">1</span><span class="sc">:</span>n) <span class="sc">%&gt;%</span></span>
+<span id="cb2-134"><a href="#cb2-134" aria-hidden="true" tabindex="-1"></a>  <span class="co"># minimize the cost of transshipment:</span></span>
+<span id="cb2-135"><a href="#cb2-135" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_objective</span>(<span class="fu">sum_expr</span>(x[i, j]<span class="sc">*</span>Cost_CD[i, j],<span class="at">i =</span> <span class="dv">1</span><span class="sc">:</span>m, <span class="at">j =</span> <span class="dv">1</span><span class="sc">:</span>DC)<span class="sc">+</span> <span class="fu">sum_expr</span>(y[j, k]<span class="sc">*</span>Cost_DC[j, k], <span class="at">k =</span> <span class="dv">1</span><span class="sc">:</span>n, <span class="at">j =</span> <span class="dv">1</span><span class="sc">:</span>DC),<span class="st">"min"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-136"><a href="#cb2-136" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_constraint</span>(<span class="fu">sum_expr</span>(y[j, k], <span class="at">j =</span> <span class="dv">1</span><span class="sc">:</span>DC) <span class="sc">&gt;=</span> Demand[k], <span class="at">k =</span> <span class="dv">1</span><span class="sc">:</span>n) <span class="sc">%&gt;%</span></span>
+<span id="cb2-137"><a href="#cb2-137" aria-hidden="true" tabindex="-1"></a>  <span class="co"># The amount of inventory in Crossdocking is smaller than production goods</span></span>
+<span id="cb2-138"><a href="#cb2-138" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_constraint</span>(<span class="fu">sum_expr</span>(x[i, j], <span class="at">j =</span> <span class="dv">1</span><span class="sc">:</span>DC) <span class="sc">&lt;=</span> Supply[i], <span class="at">i =</span> <span class="dv">1</span><span class="sc">:</span>m) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-139"><a href="#cb2-139" aria-hidden="true" tabindex="-1"></a>  <span class="co"># The amount of is bigger than demand in DC</span></span>
+<span id="cb2-140"><a href="#cb2-140" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_constraint</span>(<span class="fu">sum_expr</span>(x[i, j], <span class="at">i =</span> <span class="dv">1</span><span class="sc">:</span>m) <span class="sc">-</span> <span class="fu">sum_expr</span>(y[j, k], <span class="at">k =</span> <span class="dv">1</span><span class="sc">:</span>n) <span class="sc">&gt;=</span> <span class="dv">0</span>,<span class="at">j =</span> <span class="dv">1</span><span class="sc">:</span>DC) <span class="sc">%&gt;%</span></span>
+<span id="cb2-141"><a href="#cb2-141" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_constraint</span>(x[i, j] <span class="sc">&gt;=</span> <span class="dv">0</span>, <span class="at">j =</span> <span class="dv">1</span><span class="sc">:</span>DC, <span class="at">i =</span> <span class="dv">1</span><span class="sc">:</span>m)<span class="sc">%&gt;%</span> </span>
+<span id="cb2-142"><a href="#cb2-142" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_constraint</span>(y[j, k] <span class="sc">&gt;=</span> <span class="dv">0</span>, <span class="at">j =</span> <span class="dv">1</span><span class="sc">:</span>DC, <span class="at">k =</span> <span class="dv">1</span><span class="sc">:</span>n)<span class="sc">%&gt;%</span> </span>
+<span id="cb2-143"><a href="#cb2-143" aria-hidden="true" tabindex="-1"></a>  <span class="co">#Solve the model:</span></span>
+<span id="cb2-144"><a href="#cb2-144" aria-hidden="true" tabindex="-1"></a>  <span class="fu">solve_model</span>(<span class="fu">with_ROI</span>(<span class="at">solver =</span> <span class="st">"glpk"</span>, <span class="at">verbose =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb2-145"><a href="#cb2-145" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb2-146"><a href="#cb2-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-149"><a href="#cb2-149" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb2-150"><a href="#cb2-150" aria-hidden="true" tabindex="-1"></a><span class="co">#| layout: [[50,50]]</span></span>
+<span id="cb2-151"><a href="#cb2-151" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb2-152"><a href="#cb2-152" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb2-153"><a href="#cb2-153" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb2-154"><a href="#cb2-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-155"><a href="#cb2-155" aria-hidden="true" tabindex="-1"></a><span class="do">## Table:</span></span>
+<span id="cb2-156"><a href="#cb2-156" aria-hidden="true" tabindex="-1"></a>solution <span class="ot">&lt;-</span> <span class="fu">get_solution</span>(model5, x[i, j]) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-157"><a href="#cb2-157" aria-hidden="true" tabindex="-1"></a>     <span class="fu">filter</span>(value <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb2-158"><a href="#cb2-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-159"><a href="#cb2-159" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)</span>
+<span id="cb2-160"><a href="#cb2-160" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb2-161"><a href="#cb2-161" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scales)  </span>
+<span id="cb2-162"><a href="#cb2-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-163"><a href="#cb2-163" aria-hidden="true" tabindex="-1"></a><span class="co"># Assuming `solution` contains the results of x[i, j]</span></span>
+<span id="cb2-164"><a href="#cb2-164" aria-hidden="true" tabindex="-1"></a><span class="co"># Transform the solution into a tidy format for the table</span></span>
+<span id="cb2-165"><a href="#cb2-165" aria-hidden="true" tabindex="-1"></a>table_data <span class="ot">&lt;-</span> solution <span class="sc">%&gt;%</span></span>
+<span id="cb2-166"><a href="#cb2-166" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">Manufacturer =</span> i, <span class="at">DC =</span> j, <span class="at">Flow =</span> value) <span class="sc">%&gt;%</span></span>
+<span id="cb2-167"><a href="#cb2-167" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Manufacturer =</span> <span class="fu">paste</span>(<span class="st">"Manufacturer"</span>, Manufacturer),</span>
+<span id="cb2-168"><a href="#cb2-168" aria-hidden="true" tabindex="-1"></a>         <span class="at">DC =</span> <span class="fu">paste</span>(<span class="st">"DC"</span>, DC)) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-169"><a href="#cb2-169" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>variable)</span>
+<span id="cb2-170"><a href="#cb2-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-171"><a href="#cb2-171" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a gt table</span></span>
+<span id="cb2-172"><a href="#cb2-172" aria-hidden="true" tabindex="-1"></a>table_data <span class="sc">%&gt;%</span></span>
+<span id="cb2-173"><a href="#cb2-173" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb2-174"><a href="#cb2-174" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_header</span>(</span>
+<span id="cb2-175"><a href="#cb2-175" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="fu">md</span>(<span class="st">"**Transshipment flows from Manufacturers to Distribution Centers**"</span>)</span>
+<span id="cb2-176"><a href="#cb2-176" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb2-177"><a href="#cb2-177" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(</span>
+<span id="cb2-178"><a href="#cb2-178" aria-hidden="true" tabindex="-1"></a>    <span class="at">Manufacturer =</span> <span class="fu">md</span>(<span class="st">"**Manufacturer**"</span>),</span>
+<span id="cb2-179"><a href="#cb2-179" aria-hidden="true" tabindex="-1"></a>    <span class="at">DC =</span> <span class="fu">md</span>(<span class="st">"**Distribution Center**"</span>),</span>
+<span id="cb2-180"><a href="#cb2-180" aria-hidden="true" tabindex="-1"></a>    <span class="at">Flow =</span> <span class="fu">md</span>(<span class="st">"**Flow Amount**"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb2-181"><a href="#cb2-181" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_number</span>(</span>
+<span id="cb2-182"><a href="#cb2-182" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">c</span>(Flow),</span>
+<span id="cb2-183"><a href="#cb2-183" aria-hidden="true" tabindex="-1"></a>    <span class="at">decimals =</span> <span class="dv">2</span></span>
+<span id="cb2-184"><a href="#cb2-184" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb2-185"><a href="#cb2-185" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_color</span>(</span>
+<span id="cb2-186"><a href="#cb2-186" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">c</span>(Flow),  <span class="co"># Use c() instead of vars()</span></span>
+<span id="cb2-187"><a href="#cb2-187" aria-hidden="true" tabindex="-1"></a>    <span class="at">colors =</span> scales<span class="sc">::</span><span class="fu">col_numeric</span>(<span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"#2ca02c"</span>,<span class="st">"#ff7f0e"</span>), <span class="at">domain =</span> <span class="cn">NULL</span>)</span>
+<span id="cb2-188"><a href="#cb2-188" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb2-189"><a href="#cb2-189" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_align</span>(</span>
+<span id="cb2-190"><a href="#cb2-190" aria-hidden="true" tabindex="-1"></a>    <span class="at">align =</span> <span class="st">"center"</span>,</span>
+<span id="cb2-191"><a href="#cb2-191" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">everything</span>()  <span class="co"># Applies to all columns</span></span>
+<span id="cb2-192"><a href="#cb2-192" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb2-193"><a href="#cb2-193" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_options</span>(</span>
+<span id="cb2-194"><a href="#cb2-194" aria-hidden="true" tabindex="-1"></a>    <span class="at">table.width =</span> <span class="fu">pct</span>(<span class="dv">100</span>)</span>
+<span id="cb2-195"><a href="#cb2-195" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-196"><a href="#cb2-196" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt_theme_espn</span>()</span>
+<span id="cb2-197"><a href="#cb2-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-198"><a href="#cb2-198" aria-hidden="true" tabindex="-1"></a><span class="do">## Barchart:</span></span>
+<span id="cb2-199"><a href="#cb2-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-200"><a href="#cb2-200" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb2-201"><a href="#cb2-201" aria-hidden="true" tabindex="-1"></a>plot_data <span class="ot">&lt;-</span> solution <span class="sc">%&gt;%</span></span>
+<span id="cb2-202"><a href="#cb2-202" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">Manufacter=</span> i, <span class="at">DC =</span> j, <span class="at">Flow =</span> value) <span class="sc">%&gt;%</span></span>
+<span id="cb2-203"><a href="#cb2-203" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Manufacter =</span> <span class="fu">paste</span>(<span class="st">"Manufacter"</span>, Manufacter),</span>
+<span id="cb2-204"><a href="#cb2-204" aria-hidden="true" tabindex="-1"></a>         <span class="at">DC =</span> <span class="fu">paste</span>(<span class="st">"DC"</span>, DC))</span>
+<span id="cb2-205"><a href="#cb2-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-206"><a href="#cb2-206" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a plot</span></span>
+<span id="cb2-207"><a href="#cb2-207" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(plot_data, <span class="fu">aes</span>(<span class="at">x =</span> Manufacter, <span class="at">y =</span> Flow, <span class="at">fill =</span> DC)) <span class="sc">+</span></span>
+<span id="cb2-208"><a href="#cb2-208" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">position =</span> <span class="st">"dodge"</span>) <span class="sc">+</span></span>
+<span id="cb2-209"><a href="#cb2-209" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb2-210"><a href="#cb2-210" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">""</span>,</span>
+<span id="cb2-211"><a href="#cb2-211" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Manufacters"</span>,</span>
+<span id="cb2-212"><a href="#cb2-212" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Flow Amount"</span>,</span>
+<span id="cb2-213"><a href="#cb2-213" aria-hidden="true" tabindex="-1"></a>       <span class="at">fill =</span> <span class="st">"Distribution Centers"</span>) <span class="sc">+</span></span>
+<span id="cb2-214"><a href="#cb2-214" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>),</span>
+<span id="cb2-215"><a href="#cb2-215" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb2-216"><a href="#cb2-216" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">"Set2"</span>)</span>
+<span id="cb2-217"><a href="#cb2-217" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb2-218"><a href="#cb2-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-219"><a href="#cb2-219" aria-hidden="true" tabindex="-1"></a>Như vậy, chúng ta đã được học về thuật toán Genetic và mô hình MILP cũng như cách thực hiện trong Rstudio.</span>
+<span id="cb2-220"><a href="#cb2-220" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-221"><a href="#cb2-221" aria-hidden="true" tabindex="-1"></a>Nếu bạn có câu hỏi hay thắc mắc nào, đừng ngần ngại liên hệ với mình qua Gmail. Bên cạnh đó, nếu bạn muốn xem lại các bài viết trước đây của mình, hãy nhấn vào hai nút dưới đây để truy cập trang **Rpubs** hoặc mã nguồn trên **Github**. Rất vui được đồng hành cùng bạn, hẹn gặp lại! 😄😄😄</span>
+<span id="cb2-222"><a href="#cb2-222" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-223"><a href="#cb2-223" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-226"><a href="#cb2-226" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb2-227"><a href="#cb2-227" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb2-228"><a href="#cb2-228" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb2-229"><a href="#cb2-229" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb2-230"><a href="#cb2-230" aria-hidden="true" tabindex="-1"></a>htmltools<span class="sc">::</span><span class="fu">includeHTML</span>(<span class="st">"message.html"</span>)</span>
+<span id="cb2-231"><a href="#cb2-231" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© Copyright 2025, <a href="https://github.com/Loccx78vn">Loc cao</a> <i class="fa-solid fa-heart"></i></p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+<p><i class="fa-solid fa-book"></i> Built with <a href="https://quarto.org/">Quarto</a></p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
